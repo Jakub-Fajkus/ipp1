@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Output
+ * Class Output.
  */
 class Output
 {
@@ -24,15 +24,13 @@ class Output
         $this->stdErr = fopen('php://stderr', 'w');
     }
 
-
     /**
      * @param $text
      * @param bool $addEol
      */
     public function writeStdout($text, $addEol = true)
     {
-
-        $this->write($this->stdOut, $text . ($addEol ? PHP_EOL : ''));
+        $this->write($this->stdOut, $text.($addEol ? PHP_EOL : ''));
     }
 
     /**
@@ -41,12 +39,12 @@ class Output
      */
     public function writeStderr($text, $addEol = true)
     {
-        $this->write($this->stdErr, $text . ($addEol ? PHP_EOL : ''));
+        $this->write($this->stdErr, $text.($addEol ? PHP_EOL : ''));
     }
 
     /**
      * @param resource $stream
-     * @param string $text
+     * @param string   $text
      */
     protected function write($stream, $text)
     {

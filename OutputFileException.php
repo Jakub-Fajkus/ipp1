@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class OutputFileException
+ * Class OutputFileException.
  */
 class OutputFileException extends \Exception
 {

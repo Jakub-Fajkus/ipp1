@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class InvalidQueryException
+ * Class InvalidQueryException.
  */
 class InvalidQueryException extends \Exception
 {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class ParametersException
+ * Class ParametersException.
  */
 class ParametersException extends \Exception
 {

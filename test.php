@@ -21,7 +21,7 @@ $failed = 0;
 
 foreach ($files as $file) {
     $testFailed = false;
-    $countOfTests++;
+    ++$countOfTests;
 
     echo "TEST: $file".PHP_EOL;
 
@@ -49,7 +49,7 @@ foreach ($files as $file) {
 
         var_dump($actualOutput, $expectedOutput);
     } else {
-        echo 'OUTPUT OK' . PHP_EOL;
+        echo 'OUTPUT OK'.PHP_EOL;
     }
 
     if ($expectedCode !== $actualCode) {
@@ -64,14 +64,14 @@ foreach ($files as $file) {
         echo $actualCode;
         echo PHP_EOL.'<<<<<'.PHP_EOL;
     } else {
-        echo 'CODE OK' . PHP_EOL;
+        echo 'CODE OK'.PHP_EOL;
     }
 
-    if($testFailed) {
-        $failed++;
+    if ($testFailed) {
+        ++$failed;
     }
 
-    echo PHP_EOL . PHP_EOL;
+    echo PHP_EOL.PHP_EOL;
 }
 
-echo "Failed tests: $failed/$countOfTests" . PHP_EOL;
+echo "Failed tests: $failed/$countOfTests".PHP_EOL;

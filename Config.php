@@ -244,7 +244,7 @@ class Config
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isGenerateXmlHeader()
     {
@@ -252,7 +252,7 @@ class Config
     }
 
     /**
-     * @param boolean $generateXmlHeader
+     * @param bool $generateXmlHeader
      */
     public function setGenerateXmlHeader($generateXmlHeader)
     {
@@ -321,7 +321,7 @@ class Config
         $this->query = file_get_contents($file);
 
         if ($this->query === false) {
-            $this->output->writeStderr('Could not read a query from the file: ' . $fileName);
+            $this->output->writeStderr('Could not read a query from the file: '.$fileName);
             throw new InvalidQueryException();
         }
     }
