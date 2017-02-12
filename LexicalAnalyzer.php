@@ -1,6 +1,8 @@
 <?php
 
-
+/**
+ * Class LexicalAnalyzer
+ */
 class LexicalAnalyzer
 {
     /**
@@ -8,36 +10,39 @@ class LexicalAnalyzer
      */
     protected $inputString;
 
+    /**
+     * @var array terminals ordered from the specific ones to the general ones
+     */
     protected static $terminals = [
-        '/^(SELECT)/' => 'SELECT',
-        '/^(FROM)/' => 'FROM',
-        '/^(WHERE)/' => 'WHERE',
-        '/^(NOT)/' => 'NOT',
-        '/^(LIMIT)/' => 'LIMIT',
-        '/^(ROOT)/' => 'ROOT',
-        '/^(CONTAINS)/' => 'CONTAINS',
-        '/^(DESC)/' => 'DESC',
-        '/^(ASC)/' => 'ASC',
-        '/^(\s+)/' => 'SPACE',
-        '/^(>)/' => 'OPERATOR_MORE',
-        '/^(<)/' => 'OPERATOR_LESS',
-        '/^(=)/' => 'OPERATOR_EQUALS',
-        '/^(\()/' => 'BRACE_LEFT',
-        '/^(\))/' => 'BRACE_RIGHT',
-
+        '/^(SELECT)/'                                             => Token::TOKEN_SELECT,
+        '/^(FROM)/'                                               => Token::TOKEN_FROM,
+        '/^(WHERE)/'                                              => Token::TOKEN_WHERE,
+        '/^(NOT)/'                                                => Token::TOKEN_NOT,
+        '/^(LIMIT)/'                                              => Token::TOKEN_LIMIT,
+        '/^(ROOT)/'                                               => Token::TOKEN_ROOT,
+        '/^(CONTAINS)/'                                           => Token::TOKEN_CONTAINS,
+        '/^(DESC)/'                                               => Token::TOKEN_DESC,
+        '/^(ASC)/'                                                => Token::TOKEN_ASC,
+        '/^(\s+)/'                                                => Token::TOKEN_SPACE,
+        '/^(>)/'                                                  => Token::TOKEN_OPERATOR_MORE,
+        '/^(<)/'                                                  => Token::TOKEN_OPERATOR_LESS,
+        '/^(=)/'                                                  => Token::TOKEN_OPERATOR_EQUALS,
+        '/^(\()/'                                                 => Token::TOKEN_BRACE_LEFT,
+        '/^(\))/'                                                 => Token::TOKEN_BRACE_RIGHT,
         /*
+         * Naming conventions - NOT IMPLEMENTED!
+         *
          *  Element names are case-sensitive
-            Element names must start with a letter or underscore
-            Element names cannot start with the letters xml (or XML, or Xml, etc)
-            Element names can contain letters, digits, hyphens, underscores, and periods
-            Element names cannot contain spaces
+         *  Element names must start with a letter or underscore
+         *  Element names cannot start with the letters xml (or XML, or Xml, etc)
+         *  Element names can contain letters, digits, hyphens, underscores, and periods
+         *  Element names cannot contain spaces
          */
-        '/^(\.[a-zA-Z_][a-zA-Z0-9\-_]*)/' => 'ATRIBUTE',
-        '/^([a-zA-Z_][a-zA-Z0-9\-_]*\.[a-zA-Z_][a-zA-Z0-9\-_]*)/' => 'ELEMENT_WITH_ATRIBUTE',
-        '/^([a-zA-Z_][a-zA-Z0-9\-_]*)/' => 'ELEMENT',
-        '/^(".*?")/' => 'STRING', //everything between the two "
-        '/^([+|-]?[0-9]+)/' => 'INTEGER',
-
+        '/^(\.[a-zA-Z_][a-zA-Z0-9\-_]*)/'                         => Token::TOKEN_ATTRIBUTE,
+        '/^([a-zA-Z_][a-zA-Z0-9\-_]*\.[a-zA-Z_][a-zA-Z0-9\-_]*)/' => Token::TOKEN_ELEMENT_WITH_ATTRIBUTE,
+        '/^([a-zA-Z_][a-zA-Z0-9\-_]*)/'                           => Token::TOKEN_ELEMENT,
+        '/^(".*?")/'                                              => Token::TOKEN_STRING, //everything between the two "
+        '/^([+|-]?[0-9]+)/'                                       => Token::TOKEN_INTEGER,
     ];
 
     /**
@@ -54,7 +59,7 @@ class LexicalAnalyzer
      * @param $line
      * @param $offset
      *
-     * @return array
+     * @return Token
      *
      * @throws \InvalidQueryException
      */
@@ -64,10 +69,7 @@ class LexicalAnalyzer
 
         foreach (static::$terminals as $pattern => $name) {
             if (preg_match($pattern, $string, $matches)) {
-                return [
-                    'match' => $matches[0],
-                    'token' => $name,
-                ];
+                return new Token($name, $matches[0]);
             }
         }
 
@@ -76,30 +78,34 @@ class LexicalAnalyzer
 
     /**
      * @return array
+     *
+     * @throws \InvalidQueryException
      */
     public function getTokens()
     {
+        /** @var Token[] $tokens */
         $tokens = [];
         $offset = 0;
 
         while ($offset < mb_strlen($this->inputString)) {
-            $result = $this->match($this->inputString, $offset);
+            $token = $this->match($this->inputString, $offset);
 
-            if ($result['token'] !== 'SPACE') {
-                $tokens[] = $result;
+            if ($token->getType() !== Token::TOKEN_SPACE) {
+                $tokens[] = $token;
             }
 
-            $offset += mb_strlen($result['match']);
-        }
+            $offset += mb_strlen($token->getValue());
 
-        foreach ($tokens as &$token) {
-            if ($token['token'] === 'STRING') {
-                $token['match'] = str_replace('"', '', $token['match']);
+            if ($token->getType() === Token::TOKEN_INTEGER) {
+                //get the integer value
+                $token->setValue((int)$token->getValue());
+            }
+
+            if ($token->getType() === Token::TOKEN_STRING) {
+                //replace the " from the string
+                $token->setValue(str_replace('"', '', $token->getValue()));
             }
         }
-        unset($token); //prevent sideefects when possible when working with the $token variable
-
-        var_dump($tokens);
 
         return $tokens;
     }

@@ -45,8 +45,8 @@ class App
 
         $this->readInputData();
         $lexicalAnalyzer = new LexicalAnalyzer($this->config->getQuery());
-        $tokens = $lexicalAnalyzer->getTokens();
-
+        $syntacticalAnalyzer = new SyntacticalAnalyzer($lexicalAnalyzer->getTokens());
+        $syntacticalAnalyzer->analyze();
 
     }
 
