@@ -71,20 +71,6 @@ class LexicalAnalyzer
             }
         }
 
-//        //it might be element or attribute
-//        try {
-//            if (preg_match('/.+?(?=\s+|\z)/', $string, $matches)) {
-//                new DOMElement($matches[0]);
-//                return [
-//                    'match' => $matches[0],
-//                    'token' => 'ELEMENT' //todo: element, attribute or both?
-//                ];
-//            }
-//        } catch (DOMException $e) {
-//            return false;
-//        }
-//        //end ot the test
-
         throw new InvalidQueryException('Unable to parse: '.mb_substr($this->inputString, $offset));
     }
 
