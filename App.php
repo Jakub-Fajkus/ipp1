@@ -44,6 +44,10 @@ class App
         }
 
         $this->readInputData();
+        $lexicalAnalyzer = new LexicalAnalyzer($this->config->getQuery());
+        $tokens = $lexicalAnalyzer->getTokens();
+
+
     }
 
     /**
