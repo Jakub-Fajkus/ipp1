@@ -13,16 +13,16 @@ try {
     $config->processParameters();
     $app->run();
 } catch (InputFileException $exception) {
-    $output->writeStderr($exception::MESSAGE);
+    $output->writeStderr($exception->getCustomMessage());
     exit($exception::CODE);
 } catch (InvalidQueryException $exception) {
-    $output->writeStderr($exception::MESSAGE);
+    $output->writeStderr($exception->getCustomMessage());
     exit($exception::CODE);
 } catch (OutputFileException $exception) {
-    $output->writeStderr($exception::MESSAGE);
+    $output->writeStderr($exception->getCustomMessage());
     exit($exception::CODE);
 } catch (ParametersException $exception) {
-    $output->writeStderr($exception::MESSAGE);
+    $output->writeStderr($exception->getCustomMessage());
     exit($exception::CODE);
 } catch (\Exception $exception) {
     $output->writeStdout('Other error');

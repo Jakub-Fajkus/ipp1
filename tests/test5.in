@@ -1,0 +1,2 @@
+php main.php --input=tests/test5.in --qf='./tests/test5.query'
+

@@ -70,7 +70,7 @@ class Config
         if (in_array('--help', $this->parameters, true)) {
             //Tento parametr nelze kombinovat s žádným dalším parametrem, jinak skript ukončete s chybou.
             if (count($this->parameters) !== 2) {
-                throw new ParametersException();
+                throw new ParametersException('Can not use --help with any other parameter');
             }
 
             $this->displayHelp = true;
@@ -87,7 +87,7 @@ class Config
             if (strpos($actual, '--input=') === 0 || strpos($actual, '-i=') === 0) {
                 //check for multiple occurrence of the same semantic argument
                 if ($this->wasProcessed('--input') || $this->wasProcessed('-i')) {
-                    throw new ParametersException();
+                    throw new ParametersException('Cannot use input parameter twice');
                 }
                 $this->inputFileName = $this->getValueFromParameter($actual);
                 $this->processedParameters[] = '--input';
@@ -95,7 +95,7 @@ class Config
             } elseif (strpos($actual, '--output=') === 0 || strpos($actual, '-o=') === 0) {
                 //check for multiple occurrence of the same semantic argument
                 if ($this->wasProcessed('--output') || $this->wasProcessed('-o')) {
-                    throw new ParametersException();
+                    throw new ParametersException('Cannot use output parameter twice');
                 }
                 $this->outputFileName = $this->getValueFromParameter($actual);
                 $this->processedParameters[] = '--output';
@@ -103,7 +103,7 @@ class Config
             } elseif (strpos($actual, '--query=') === 0 || strpos($actual, '-q=') === 0) {
                 //check for multiple occurrence of the same semantic argument
                 if ($this->wasProcessed('--query') || $this->wasProcessed('-q') || $this->wasProcessed('--qf')) {
-                    throw new ParametersException();
+                    throw new ParametersException('Cannot use input query twice');
                 }
 
                 $this->query = $this->getValueFromParameter($actual);
@@ -111,21 +111,21 @@ class Config
                 $this->processedParameters[] = '-q';
             } elseif (strpos($actual, '--qf=') === 0) {
                 if ($this->wasProcessed('--qf') || $this->wasProcessed('--query') || $this->wasProcessed('-q')) {
-                    throw new ParametersException();
+                    throw new ParametersException('Cannot use input parameter twice');
                 }
 
                 $this->processedParameters[] = '--qf';
                 $this->getQueryFromFile($this->getValueFromParameter($actual));
             } elseif (strpos($actual, '-n=') === 0) {
                 if ($this->wasProcessed('--n')) {
-                    throw new ParametersException();
+                    throw new ParametersException('Cannot use n parameter twice');
                 }
 
                 $this->generateXmlHeader = false;
             } elseif (strpos($actual, '--root=') === 0 || strpos($actual, '-r=') === 0) {
                 //check for multiple occurrence of the same semantic argument
                 if ($this->wasProcessed('--root') || $this->wasProcessed('-r')) {
-                    throw new ParametersException();
+                    throw new ParametersException('Cannot use root parameter twice');
                 }
                 $this->outputFileName = $this->getValueFromParameter($actual);
                 $this->processedParameters[] = '--root';
@@ -133,14 +133,16 @@ class Config
 
                 $this->rootElementName = $this->getValueFromParameter($actual);
             } else {
-                throw new ParametersException();
+                throw new ParametersException('Unknown parameter: '.$actual);
             }
         }
 
         if (!is_file($this->inputFileName)) {
-            throw new InputFileException();
+            throw new InputFileException('Can not open input file');
         }
 
+
+        //todo: check if the input, output and query(qf) option was present
 //the file will be opened with the 'w' modificator
 //        if (!is_file($this->outputFileName)) {
 //            throw new OutputFileException();
@@ -316,13 +318,10 @@ class Config
      */
     protected function getQueryFromFile($fileName)
     {
-        $file = fopen($fileName, 'r');
-
-        $this->query = file_get_contents($file);
+        $this->query = file_get_contents($fileName);
 
         if ($this->query === false) {
-            $this->output->writeStderr('Could not read a query from the file: '.$fileName);
-            throw new InvalidQueryException();
+            throw new InvalidQueryException('Could not read a query from the file: '.$fileName);
         }
     }
 }
