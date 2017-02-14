@@ -27,8 +27,8 @@ class LexicalAnalyzer
         '/^(>)/'                                                  => Token::TOKEN_OPERATOR_MORE,
         '/^(<)/'                                                  => Token::TOKEN_OPERATOR_LESS,
         '/^(=)/'                                                  => Token::TOKEN_OPERATOR_EQUALS,
-        '/^(\()/'                                                 => Token::TOKEN_BRACE_LEFT,
-        '/^(\))/'                                                 => Token::TOKEN_BRACE_RIGHT,
+//        '/^(\()/'                                                 => Token::TOKEN_BRACE_LEFT,
+//        '/^(\))/'                                                 => Token::TOKEN_BRACE_RIGHT,
         /*
          * Naming conventions - NOT IMPLEMENTED!
          *
@@ -42,7 +42,7 @@ class LexicalAnalyzer
         '/^([a-zA-Z_][a-zA-Z0-9\-_]*\.[a-zA-Z_][a-zA-Z0-9\-_]*)/' => Token::TOKEN_ELEMENT_WITH_ATTRIBUTE,
         '/^([a-zA-Z_][a-zA-Z0-9\-_]*)/'                           => Token::TOKEN_ELEMENT,
         '/^(".*?")/'                                              => Token::TOKEN_STRING, //everything between the two "
-        '/^([+|-]?[0-9]+)/'                                       => Token::TOKEN_INTEGER,
+        '/^[0-9]+)/'                                              => Token::TOKEN_INTEGER,
     ];
 
     /**
