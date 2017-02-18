@@ -33,9 +33,9 @@ class App
     }
 
     /**
-     *
      * @throws \InvalidQueryException
      * @throws \InputFileException
+     * @throws \Exception
      */
     public function run()
     {
@@ -46,12 +46,18 @@ class App
         }
 
         $this->readInputData();
+
         $lexicalAnalyzer = new LexicalAnalyzer($this->config->getQuery());
         $syntacticalAnalyzer = new SyntacticalAnalyzer($lexicalAnalyzer->getTokens());
-        echo "analysis :" . $syntacticalAnalyzer->analyze();
+
+        $syntacticalAnalyzer->analyze();
         $query = $syntacticalAnalyzer->getQuery();
         $query->validate();
 
+        $parser = new XMLParser($this->config->getInputFileName());
+        $fromElement = $this->findFromElement($query, $parser);
+
+        var_dump($fromElement);
     }
 
     /**
@@ -72,5 +78,60 @@ class App
         if ($this->inputData === false) {
             throw new InputFileException();
         }
+    }
+
+    /**
+     * @param Query     $query
+     * @param XMLParser $parser
+     *
+     * @throws Exception
+     */
+    protected function findFromElement(Query $query, XMLParser $parser)
+    {
+        $queryElement = $query->getFromElement();
+        $findRoot = false;
+
+        if ($queryElement->getType() === Token::TOKEN_ELEMENT) {
+            $queryElementName = $queryElement->getValue();
+            $decisionMaker = function (SimpleXMLIterator $rootElement, $attributes) use ($queryElementName) {
+                return $rootElement->getName() === $queryElementName;
+            };
+        } elseif ($queryElement->getType() === Token::TOKEN_ATTRIBUTE) {
+            $attributeName = str_replace('.', '', $queryElement->getValue()); //remove the dot at the 0 index
+            $decisionMaker = function (SimpleXMLIterator $rootElement, $attributes) use ($attributeName) {
+                foreach ($attributes as $key => $value) {
+                    if ($key === $attributeName) {
+                        return true;
+                    }
+                }
+
+                return false;
+            };
+        } elseif ($queryElement->getType() === Token::TOKEN_ELEMENT_WITH_ATTRIBUTE) {
+            list($elementName, $attributeName) = explode('.', $queryElement->getValue());
+            $decisionMaker = function (SimpleXMLIterator $rootElement, $attributes) use ($attributeName, $elementName) {
+                if ($rootElement->getName() !== $elementName) {
+                    return false;
+                }
+
+                foreach ($attributes as $key => $value) {
+                    if ($key === $attributeName) {
+                        return true;
+                    }
+                }
+
+                return false;
+            };
+        } elseif ($queryElement->getType() === Token::TOKEN_ROOT) {
+            $decisionMaker = function () {
+                return false;
+            };
+
+            $findRoot = true;
+        } else {
+            throw new \Exception('Invalid query type');
+        }
+
+        return $parser->findElement($decisionMaker, null, $findRoot);
     }
 }

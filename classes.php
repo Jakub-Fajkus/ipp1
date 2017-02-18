@@ -11,3 +11,4 @@ include_once __DIR__.'/InputFileException.php';
 include_once __DIR__.'/InvalidQueryException.php';
 include_once __DIR__.'/OutputFileException.php';
 include_once __DIR__.'/ParametersException.php';
+include_once __DIR__.'/XMLParser.php';
