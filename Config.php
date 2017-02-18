@@ -67,6 +67,8 @@ class Config
 
     public function processParameters()
     {
+        $queryFile = null;
+
         if (in_array('--help', $this->parameters, true)) {
             //Tento parametr nelze kombinovat s žádným dalším parametrem, jinak skript ukončete s chybou.
             if (count($this->parameters) !== 2) {
@@ -115,8 +117,8 @@ class Config
                 }
 
                 $this->processedParameters[] = '--qf';
-                $this->getQueryFromFile($this->getValueFromParameter($actual));
-            } elseif (strpos($actual, '-n=') === 0) {
+                $queryFile = $actual;
+            } elseif (strpos($actual, '-n') === 0) {
                 if ($this->wasProcessed('--n')) {
                     throw new ParametersException('Cannot use n parameter twice');
                 }
@@ -135,6 +137,11 @@ class Config
             } else {
                 throw new ParametersException('Unknown parameter: '.$actual);
             }
+        }
+
+        //delayed query file processing
+        if (in_array('--qf', $this->processedParameters, true)) {
+            $this->getQueryFromFile($this->getValueFromParameter($queryFile));
         }
 
         if (!is_file($this->inputFileName)) {
@@ -318,7 +325,16 @@ class Config
      */
     protected function getQueryFromFile($fileName)
     {
-        $this->query = file_get_contents($fileName);
+        if (is_file($fileName)) {
+            $this->query = file_get_contents($fileName);
+        } else {
+            if (is_file(__DIR__ . '/' . $fileName)) {
+                $this->query = file_get_contents(__DIR__ . '/' . $fileName);
+            } else {
+//                throw new InputFileException('N') //todo
+            }
+        }
+
 
         if ($this->query === false) {
             throw new InvalidQueryException('Could not read a query from the file: '.$fileName);

@@ -34,6 +34,8 @@ class App
 
     /**
      *
+     * @throws \InvalidQueryException
+     * @throws \InputFileException
      */
     public function run()
     {
@@ -46,7 +48,9 @@ class App
         $this->readInputData();
         $lexicalAnalyzer = new LexicalAnalyzer($this->config->getQuery());
         $syntacticalAnalyzer = new SyntacticalAnalyzer($lexicalAnalyzer->getTokens());
-        $syntacticalAnalyzer->analyze();
+        echo "analysis :" . $syntacticalAnalyzer->analyze();
+        $query = $syntacticalAnalyzer->getQuery();
+        $query->validate();
 
     }
 

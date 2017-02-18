@@ -10,6 +10,7 @@ class Token
     const TOKEN_LIMIT = 'LIMIT';
     const TOKEN_ROOT = 'ROOT';
     const TOKEN_CONTAINS = 'CONTAINS';
+    const TOKEN_ORDER_BY = 'ORDER_BY';
     const TOKEN_DESC = 'DESC';
     const TOKEN_ASC = 'ASC';
     const TOKEN_SPACE = 'SPACE';
@@ -76,5 +77,42 @@ class Token
     public function setValue($value)
     {
         $this->value = $value;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isElementOrAttribute()
+    {
+        return $this->type === self::TOKEN_ELEMENT ||
+            $this->type === self::TOKEN_ELEMENT_WITH_ATTRIBUTE ||
+            $this->type === self::TOKEN_ATTRIBUTE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConditionOperator()
+    {
+        return  $this->isArithmeticalOperator() ||
+            $this->type === self::TOKEN_CONTAINS;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isArithmeticalOperator()
+    {
+        return $this->type === self::TOKEN_OPERATOR_EQUALS ||
+            $this->type === self::TOKEN_OPERATOR_LESS ||
+            $this->type === self::TOKEN_OPERATOR_MORE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLiteral()
+    {
+        return $this->type === self::TOKEN_STRING || $this->type === self::TOKEN_INTEGER;
     }
 }

@@ -1,1 +1,1 @@
-SELECT book FROM library WHERE title CONTAINS "Duna" AND (.name = "Frank Herbert" OR year > 1980) ORDER BY year DESC LIMIT 8
+SELECT book FROM library WHERE title CONTAINS "Duna" ORDER BY year DESC LIMIT 8

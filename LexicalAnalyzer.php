@@ -23,6 +23,7 @@ class LexicalAnalyzer
         '/^(CONTAINS)/'                                           => Token::TOKEN_CONTAINS,
         '/^(DESC)/'                                               => Token::TOKEN_DESC,
         '/^(ASC)/'                                                => Token::TOKEN_ASC,
+        '/^(ORDER\s+BY)/'                                         => Token::TOKEN_ORDER_BY,
         '/^(\s+)/'                                                => Token::TOKEN_SPACE,
         '/^(>)/'                                                  => Token::TOKEN_OPERATOR_MORE,
         '/^(<)/'                                                  => Token::TOKEN_OPERATOR_LESS,
@@ -42,7 +43,7 @@ class LexicalAnalyzer
         '/^([a-zA-Z_][a-zA-Z0-9\-_]*\.[a-zA-Z_][a-zA-Z0-9\-_]*)/' => Token::TOKEN_ELEMENT_WITH_ATTRIBUTE,
         '/^([a-zA-Z_][a-zA-Z0-9\-_]*)/'                           => Token::TOKEN_ELEMENT,
         '/^(".*?")/'                                              => Token::TOKEN_STRING, //everything between the two "
-        '/^[0-9]+)/'                                              => Token::TOKEN_INTEGER,
+        '/^([+|-]?[0-9]+)/'                                       => Token::TOKEN_INTEGER,
     ];
 
     /**
