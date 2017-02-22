@@ -43,6 +43,7 @@ class LexicalAnalyzer
         '/^([a-zA-Z_][a-zA-Z0-9\-_]*\.[a-zA-Z_][a-zA-Z0-9\-_]*)/' => Token::TOKEN_ELEMENT_WITH_ATTRIBUTE,
         '/^([a-zA-Z_][a-zA-Z0-9\-_]*)/'                           => Token::TOKEN_ELEMENT,
         '/^(".*?")/'                                              => Token::TOKEN_STRING, //everything between the two "
+        '/^(\'.*?\')/'                                            => Token::TOKEN_STRING, //everything between the two '
         '/^([+|-]?[0-9]+)/'                                       => Token::TOKEN_INTEGER,
     ];
 
@@ -105,6 +106,7 @@ class LexicalAnalyzer
             if ($token->getType() === Token::TOKEN_STRING) {
                 //replace the " from the string
                 $token->setValue(str_replace('"', '', $token->getValue()));
+                $token->setValue(str_replace('\'', '', $token->getValue()));
             }
         }
 
