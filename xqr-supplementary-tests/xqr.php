@@ -27,7 +27,7 @@ try {
 } catch (\Exception $exception) {
     $output->writeStdout('Other error');
     var_dump($exception); //todo: remove!
-    exit(120);
+    exit(4); //the SimpleXMLElement throws an exception while parsing
 }
 
 exit(0);

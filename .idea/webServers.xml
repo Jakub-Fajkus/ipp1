@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="2a32c933-3788-4215-86e8-1c1a635ddcf0" name="eva" url="http://eva.fit.vutbr.cz">
+        <fileTransfer host="eva.fit.vutbr.cz" port="22" rootFolder="/home/users/xf/xfajku06" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

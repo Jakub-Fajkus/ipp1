@@ -80,8 +80,8 @@ cp ../* .
 #echo -n $? > test01.!!!
 
 # test02: Jednoduchy SELECT element FROM ROOT; Expected output: test02.out; Expected return code: 0
-$INTERPRETER $TASK.$EXTENSION --input="${LOCAL_IN_PATH3}test02.in" --output="${LOCAL_OUT_PATH3}test02.out" --qf=test02.qu --root=Books 2> ${LOG_PATH}test02.err
-echo -n $? > test02.!!!
+#$INTERPRETER $TASK.$EXTENSION --input="${LOCAL_IN_PATH3}test02.in" --output="${LOCAL_OUT_PATH3}test02.out" --qf=test02.qu --root=Books 2> ${LOG_PATH}test02.err
+#echo -n $? > test02.!!!
 #
 ## test03: Vyber pomoci SELECT je omezen na dve polozky - soucasne byla odstranena hlavicka; Expected output: test03.out; Expected return code: 0
 #$INTERPRETER $TASK.$EXTENSION --input=${LOCAL_IN_PATH}test03.in --output="${LOCAL_OUT_PATH3}test03.out" --qf=test03.qu --root=OnlyTwoBooks -n 2> ${LOG_PATH}test03.err
@@ -95,7 +95,7 @@ echo -n $? > test02.!!!
 #$INTERPRETER $TASK.$EXTENSION --input="${LOCAL_IN_PATH3}test05.in" --output=${LOCAL_OUT_PATH}test05.out --qf=test05.qu --root=Library 2> ${LOG_PATH}test05.err
 #echo -n $? > test05.!!!
 #
-## test06: Vyber elementu z podelementu prvniho vyskytu prohledavaneho elementu 'library' s attributem 'my'; Expected output: test06.out; Expected return code: 0
+# test06: Vyber elementu z podelementu prvniho vyskytu prohledavaneho elementu 'library' s attributem 'my'; Expected output: test06.out; Expected return code: 0
 #$INTERPRETER $TASK.$EXTENSION --input="${LOCAL_IN_PATH3}test06.in" --output="${LOCAL_OUT_PATH3}test06.out" --qf=test06.qu --root=Titles 2> ${LOG_PATH}test06.err
 #echo -n $? > test06.!!!
 #
@@ -104,8 +104,8 @@ echo -n $? > test02.!!!
 #echo -n $? > test07.!!!
 #
 ## test08: SELECT s jednoduchou podminkou; Expected output: test08.out; Expected return code: 0
-#$INTERPRETER $TASK.$EXTENSION --input=${LOCAL_IN_PATH2}test08.in --output="${LOCAL_OUT_PATH3}test08.out" --qf=test08.qu 2> ${LOG_PATH}test08.err
-#echo -n $? > test08.!!!
+$INTERPRETER $TASK.$EXTENSION --input=${LOCAL_IN_PATH2}test08.in --output="${LOCAL_OUT_PATH3}test08.out" --qf=test08.qu 2> ${LOG_PATH}test08.err
+echo -n $? > test08.!!!
 #
 ## test09: dalsi SELECT s jednoduchou podminkou; Expected output: test09.out; Expected return code: 0
 #$INTERPRETER $TASK.$EXTENSION --input="${LOCAL_IN_PATH3}test09.in" --output=${LOCAL_OUT_PATH2}test09.out --qf=test09.qu 2> ${LOG_PATH}test09.err

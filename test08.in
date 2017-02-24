@@ -92,11 +92,7 @@
       of being quantum.</description>
    </book>
    <book id="bk110">
-      <author>
-         <name>O'Brien, Tim</name>
-         <year>1996</year>
-      </author>
-
+      <author>O'Brien, Tim</author>
       <title>Microsoft .NET: The Programming Bible</title>
       <genre>Computer</genre>
       <price>36.95</price>

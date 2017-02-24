@@ -21,6 +21,16 @@ class App
     protected $inputData;
 
     /**
+     * @var Query
+     */
+    protected $query;
+
+    /**
+     * @var XMLParser
+     */
+    protected $xmlParser;
+
+    /**
      * App constructor.
      *
      * @param Config $config
@@ -50,14 +60,41 @@ class App
         $lexicalAnalyzer = new LexicalAnalyzer($this->config->getQuery());
         $syntacticalAnalyzer = new SyntacticalAnalyzer($lexicalAnalyzer->getTokens());
 
-        $syntacticalAnalyzer->analyze();
-        $query = $syntacticalAnalyzer->getQuery();
-        $query->validate();
+        if ($syntacticalAnalyzer->analyze() === false) {
+            throw new InvalidQueryException('Syntax error in query');
+        }
 
-        $parser = new XMLParser($this->config->getInputFileName());
-        $fromElement = $this->findFromElement($query, $parser);
+        $this->query = $syntacticalAnalyzer->getQuery();
+        $this->query->validate();
+        $this->xmlParser = new XMLParser($this->config->getInputFileName(), $this->query);
 
-        var_dump($fromElement);
+
+        $fromElements = $this->findFromElements();
+
+        if (count($fromElements) < 1) {
+            $this->generateEmptyOutput();
+
+            return;
+        }
+
+        $selectElements = [];
+        foreach ($fromElements as $fromElement) {
+            $selectElements[] = $this->selectElements($fromElement);
+        }
+
+        //todo: rework or remove!
+//        //clause where
+        $document = new DOMDocument();
+        $document->formatOutput = true;
+//        foreach ($selectElements as $selectElement) {
+//            $neco = dom_import_simplexml($selectElement);
+//            $document->appendChild($document->importNode($neco, true));
+//            //filter where !
+//        }
+
+        $xml = $document->saveXML();
+//        file_put_contents($this->config->getOutputFileName(), $xml);
+//        var_dump($test);
     }
 
     /**
@@ -82,13 +119,15 @@ class App
 
     /**
      * @param Query     $query
-     * @param XMLParser $parser
+     * @param XMLParser $$this->xmlParser
+     *
+     * @return SimpleXMLIterator[]
      *
      * @throws Exception
      */
-    protected function findFromElement(Query $query, XMLParser $parser)
+    protected function findFromElements()
     {
-        $queryElement = $query->getFromElement();
+        $queryElement = $this->query->getFromElement();
         $findRoot = false;
 
         if ($queryElement->getType() === Token::TOKEN_ELEMENT) {
@@ -132,6 +171,86 @@ class App
             throw new \Exception('Invalid query type');
         }
 
-        return $parser->findElement($decisionMaker, null, $findRoot);
+        $fromElements = $this->xmlParser->findFromElements($decisionMaker, null, $findRoot);
+        if (count($fromElements) > 0) {
+            return $fromElements;
+        } else {
+            //todo: the from element was not found
+            return;
+        }
+    }
+
+    /**
+     * @param SimpleXMLIterator $fromElement
+     *
+     * @return SimpleXMLIterator[]
+     *
+     * @throws InvalidQueryException
+     */
+    protected function selectElements(SimpleXMLIterator $fromElement)
+    {
+        $this->xmlParser->findSelectElements($fromElement);
+
+//        $selectElement = $this->query->getSelectElement();
+//        $findRoot = false;
+//
+//        if ($selectElement->getType() === Token::TOKEN_ELEMENT) {
+//            $selectElementName = $selectElement->getValue();
+//            $strategy = $this->getStrategyForQuery();
+//            $decisionMaker = function (SimpleXMLIterator $rootElement, $attributes) use ($selectElementName, $strategy) {
+//
+//
+//
+//                return $rootElement->getName() === $selectElementName;
+//            };
+//        } else {
+//            throw new InvalidQueryException('Invalid select element');
+//        }
+//
+//        $fromElement->rewind();
+//        $foundElements = $this->xmlParser->findFromElements($decisionMaker, $fromElement, $findRoot, false, true);
+//
+//        if ($this->query->getConditionLeft() === '') {
+//            return $foundElements;
+//        }
+//
+//        return $this->filterSelectElements($foundElements);
+    }
+
+//    /**
+//todo: delete!
+//     * @param $elements
+//     *
+//     * @return SimpleXMLIterator[]
+//     *
+//     * @throws InvalidQueryException
+//     */
+//    protected function filterSelectElements($elements)
+//    {
+//        //dva pripady:
+//        //1. element v SELECT je shodny s elementem v WHERE -> hledame vsehcny elementy, ktere maji tuto vlasnost(hodnotu atributu nebo elementu samotneho)
+//        //2. element ve WHERE je podlementem elementu v SELECT - hledame v podlelementech
+//
+//        $strategy = $this->getStrategyForQuery();
+//        $filteredElements = [];
+//
+//        //the element in where is identical to the element in the select
+//        if ($this->query->getSelectElement()->getValue() === $this->query->getConditionLeft()->getValue()) {
+//            foreach ($elements as $element) {
+//                if ($strategy->meetsCondition($element)) {
+//                     $filteredElements[] = $element;
+//                }
+//            }
+//        } else {
+//            //todo: this will be funnier!
+//        }
+//
+//        return $filteredElements;
+//
+//    }
+
+    protected function generateEmptyOutput()
+    {
+        //todo generate output file(program parameters!)
     }
 }

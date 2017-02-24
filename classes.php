@@ -12,3 +12,8 @@ include_once __DIR__.'/InvalidQueryException.php';
 include_once __DIR__.'/OutputFileException.php';
 include_once __DIR__.'/ParametersException.php';
 include_once __DIR__.'/XMLParser.php';
+include_once __DIR__.'/BaseConditionStrategy.php';
+include_once __DIR__.'/DummyConditionStrategy.php';
+include_once __DIR__.'/ElementConditionStrategy.php';
+include_once __DIR__.'/ElementWithAttributeStrategy.php';
+include_once __DIR__.'/AttributeConditionStrategy.php';
