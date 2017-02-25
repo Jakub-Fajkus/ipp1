@@ -225,7 +225,7 @@ class App
             $xml = str_replace($emptyDocumentHeader, '', $document->saveXML());
         }
 
-        echo $xml;
+//        echo $xml;
 
         if ($this->config->getOutputFileName() === '') {
             //write to the stdout

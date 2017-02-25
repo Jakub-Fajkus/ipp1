@@ -100,9 +100,10 @@ class XMLParser
                 return $strategy->meetsCondition($rootElement);
             };
 
-            $els = $this->findFromElements($decisionMaker, $fromElement, true, false);
+            $this->findFromElements($decisionMaker, $fromElement, true, false);
+            $foundElements = $strategy->getSelectedElements();
 
-            return $els;
+            return $foundElements;
         } else if ($this->query->getConditionLeft() !== null) {
 
             $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($selectElementName, $strategy) {

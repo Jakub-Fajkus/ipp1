@@ -16,7 +16,7 @@ foreach ($referentialCodeFiles as $index => $refCodeFile) {
     $testFailed = false;
     ++$countOfTests;
 
-    echo "TEST: $refCodeFile".PHP_EOL;
+    echo "**********************************TEST: $refCodeFile ********************************************************************".PHP_EOL;
 
     $actualOutput = null;
     $actualOutputFile = $dir . '/' . $referentialOutFiles[$index] . '.out';
@@ -38,6 +38,10 @@ foreach ($referentialCodeFiles as $index => $refCodeFile) {
 
     $javaResult = shell_exec("java -jar jexamxml.jar $expectedOutputFile $actualOutputFile $diffFile xqr_options");
     echo $javaResult;
+
+    echo "JAVA DIFF:" . PHP_EOL;
+    echo shell_exec("cat $diffFile");
+    echo PHP_EOL . ":JAVA DIFF" . PHP_EOL;
 
 //    if ($actualOutput !== $expectedOutput) {
 //        $testFailed = true;
