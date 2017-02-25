@@ -105,8 +105,9 @@ class XMLParser
         $selectElementName = $selectElement->getValue();
         $strategy = $this->getStrategyForQuery();
 
+
         //the element in where is identical to the element in the select
-        if ($this->query->getSelectElement()->getValue() === $this->query->getConditionLeft()->getValue()) {
+        if ($this->query->getConditionLeft() === null || $this->query->getSelectElement()->getValue() === $this->query->getConditionLeft()->getValue()) {
             //go through the elements and look for select element. when it is found check ensure the condition is met
 
             $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($selectElementName, $strategy) {
@@ -122,6 +123,7 @@ class XMLParser
 
             return $els;
         } else {
+            return [];
             //todo: this will be funnier!
         }
     }
@@ -174,6 +176,10 @@ class XMLParser
      */
     protected function getStrategyForQuery()
     {
+        if ($this->query->getConditionLeft() === null) {
+            return new DummyConditionStrategy($this->query, true);
+        }
+
         if ($this->query->getConditionLeft()->getType() === Token::TOKEN_ELEMENT) {
             return new ElementConditionStrategy($this->query);
         } elseif ($this->query->getConditionLeft()->getType() === Token::TOKEN_ATTRIBUTE) {

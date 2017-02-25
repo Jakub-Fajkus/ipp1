@@ -15,21 +15,27 @@ try {
     $app->run();
 } catch (InputFileException $exception) {
     $output->writeStderr($exception->getCustomMessage());
+    $output->writeStderr($exception->getTraceAsString());
     exit($exception::CODE);
 } catch (InvalidQueryException $exception) {
     $output->writeStderr($exception->getCustomMessage());
+    $output->writeStderr($exception->getTraceAsString());
     exit($exception::CODE);
 } catch (OutputFileException $exception) {
     $output->writeStderr($exception->getCustomMessage());
+    $output->writeStderr($exception->getTraceAsString());
     exit($exception::CODE);
 } catch (ParametersException $exception) {
     $output->writeStderr($exception->getCustomMessage());
+    $output->writeStderr($exception->getTraceAsString());
     exit($exception::CODE);
 } catch (InvalidInputFileFormatException $exception) {
     $output->writeStderr($exception->getCustomMessage());
+    $output->writeStderr($exception->getTraceAsString());
     exit($exception::CODE);
 } catch (\Exception $exception) {
     $output->writeStdout('Other error');
+    $output->writeStderr($exception->getTraceAsString());
     var_dump($exception); //todo: remove!
     exit(4); //the SimpleXMLElement throws an exception while parsing
 }

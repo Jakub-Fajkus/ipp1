@@ -59,13 +59,6 @@ class Query
     public function __construct()
     {
         $this->negateCondition = false;
-        $this->selectElement = '';
-        $this->fromElement = '';
-        $this->conditionLeft = '';
-        $this->conditionOperator = '';
-        $this->conditionRight = '';
-        $this->orderElement = '';
-        $this->ordering = '';
         $this->isFromElementEmpty = false;
     }
 

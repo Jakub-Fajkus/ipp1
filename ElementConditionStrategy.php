@@ -12,8 +12,13 @@ class ElementConditionStrategy extends BaseConditionStrategy
         $name = $element->getName();
         $children = $element->children();
         $attributes = $element->attributes();
+
+        if ($this->query->getConditionLeft() === NULL) {
+            return true;
+        }
+
         if ($name === $this->query->getConditionLeft()->getValue()) {
-            var_dump($children);
+//            var_dump($children);
 
             if (count($element->children()) > 0) {
                 throw new InvalidInputFileFormatException("The element $name contains other elements! Thus it cannot be used in the condition.");

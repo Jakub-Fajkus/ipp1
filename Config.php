@@ -130,7 +130,6 @@ class Config
                 if ($this->wasProcessed('--root') || $this->wasProcessed('-r')) {
                     throw new ParametersException('Cannot use root parameter twice');
                 }
-                $this->outputFileName = $this->getValueFromParameter($actual);
                 $this->processedParameters[] = '--root';
                 $this->processedParameters[] = '-r';
 
@@ -152,6 +151,8 @@ class Config
         if (!in_array('--output', $this->processedParameters, true)) {
             //todo: write to stdout
         }
+
+        echo "FILE:".$this->outputFileName . PHP_EOL;
 
         if (!is_file($this->inputFileName)) {
             throw new InputFileException('Can not open input file');

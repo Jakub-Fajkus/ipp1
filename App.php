@@ -223,10 +223,6 @@ class App
             $xml = str_replace($emptyDocumentHeader, '', $document->saveXML(null, LIBXML_NOEMPTYTAG));
         }
 
-        echo "TUUU";
-        var_dump($xml);
-
-
         if ($this->config->getOutputFileName() === '') {
             //write to the stdout
             $this->output->writeStdout($xml);
