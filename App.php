@@ -87,12 +87,9 @@ class App
             return;
         }
 
-        $selectElements = [];
-        foreach ($fromElements as $fromElement) {
-            $selectElements = array_merge($selectElements, $this->selectElements($fromElement));
-        }
+        $selectElements = $this->selectElements($fromElements[0]);
 
-        //todo: order and limit?
+        //todo: order
 
         $this->saveDomToFile($selectElements);
     }
@@ -128,9 +125,11 @@ class App
     protected function findFromElements()
     {
         $queryElement = $this->query->getFromElement();
-        $findRoot = false;
+        $findRoot = $this->query->getSelectElement()->getValue() === Token::TOKEN_ROOT;
 
-        if ($queryElement->getType() === Token::TOKEN_ELEMENT) {
+        if ($queryElement->getType() === Token::TOKEN_ROOT) {
+            $fromElements = [$this->xmlParser->getIterator()]; //get the root)
+        } elseif ($queryElement->getType() === Token::TOKEN_ELEMENT) {
             $queryElementName = $queryElement->getValue();
             $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($queryElementName) {
                 return $rootElement->getName() === $queryElementName;
@@ -167,8 +166,6 @@ class App
             };
 
             $fromElements = $this->xmlParser->findFromElements($decisionMaker, null, $findRoot);
-        } elseif ($queryElement->getType() === Token::TOKEN_ROOT) {
-            $fromElements = $this->xmlParser->getIterator(); //get the root
         } else {
             throw new \Exception('Invalid query type');
         }
@@ -200,7 +197,12 @@ class App
 //        $this->config->setRootElementName('mujRoot'); //todo: testing
 //        $this->config->setGenerateXmlHeader(false);
 
-        $document = new DOMDocument();
+        if ($this->query->getLimit() !== null) {
+            $elements = array_slice($elements, 0, $this->query->getLimit()->getValue());
+        }
+
+
+        $document = new DOMDocument('1.0', 'UTF-8');
         $emptyDocumentHeader = $document->saveXML();
         $document->formatOutput = true;
         $rootElement = null; //either the whole document or the artificial root
@@ -218,10 +220,12 @@ class App
         }
 
         if ($this->config->isGenerateXmlHeader()) {
-            $xml = $document->saveXML(null, LIBXML_NOEMPTYTAG);
+            $xml = $document->saveXML();
         } else {
-            $xml = str_replace($emptyDocumentHeader, '', $document->saveXML(null, LIBXML_NOEMPTYTAG));
+            $xml = str_replace($emptyDocumentHeader, '', $document->saveXML());
         }
+
+        echo $xml;
 
         if ($this->config->getOutputFileName() === '') {
             //write to the stdout

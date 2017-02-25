@@ -20,7 +20,10 @@ class XMLParser
      */
     public function __construct($fileName, $query)
     {
-        $this->iterator = @new SimpleXMLElement($fileName, 0, true);
+        if (!empty($fileName)) {
+            $this->iterator = @new SimpleXMLElement($fileName, 0, true);
+        }
+
         $this->query = $query;
 
         libxml_use_internal_errors(); //supress warnings
@@ -60,8 +63,7 @@ class XMLParser
             if ($child === null) {
                 break;
             }
-
-            echo 'Element: ' . $child->getName() . ' children count:  '.(int)count($child->children()) . PHP_EOL;
+//            echo 'Element: ' . $child->getName() . ' children count:  '.(int)count($child->children()) . PHP_EOL;
 
             $attributes = $this->getAttributes($child);
             if ($decisionMaker($child, $attributes)) {
@@ -71,21 +73,6 @@ class XMLParser
                 $returnElements = array_merge($returnElements, $foundElements);
             }
         }
-
-//
-//            foreach ($iterator as $rootElement) {
-//            if ($rootElement === null) {
-//                break;
-//            }
-//
-//            $attributes = $this->getAttributes($rootElement);
-//            if ($decisionMaker($rootElement, $attributes)) {
-//                $returnElements[] = $rootElement;
-//            } elseif ($goDeeper) {
-//                $foundElements = $this->findFromElements($decisionMaker, $rootElement);
-//                $returnElements = array_merge($returnElements, $foundElements);
-//            }
-//        }
 
         return $returnElements;
     }
@@ -101,7 +88,6 @@ class XMLParser
             throw new InvalidQueryException('Invalid select element');
         }
 
-        $filteredElements = [];
         $selectElementName = $selectElement->getValue();
         $strategy = $this->getStrategyForQuery();
 
@@ -114,17 +100,23 @@ class XMLParser
                 return $strategy->meetsCondition($rootElement);
             };
 
-            $els = $this->findFromElements($decisionMaker, $fromElement, true);
-//            foreach ($elements as $element) {
-//                if ($strategy->meetsCondition($element)) {
-//                     $filteredElements[] = $element;
-//                }
-//            }
+            $els = $this->findFromElements($decisionMaker, $fromElement, true, false);
 
             return $els;
-        } else {
-            return [];
+        } else if ($this->query->getConditionLeft() !== null) {
+
+            $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($selectElementName, $strategy) {
+                return $strategy->meetsCondition($rootElement);
+                return true;
+            };
+
+            $this->findFromElements($decisionMaker, $fromElement, true, false);
+            $foundElements = $strategy->getSelectedElements();
+
+            return $foundElements;
             //todo: this will be funnier!
+        } else {
+            //tood?
         }
     }
 
@@ -176,16 +168,18 @@ class XMLParser
      */
     protected function getStrategyForQuery()
     {
+        $strategyParser = new self(null, $this->query);
+
         if ($this->query->getConditionLeft() === null) {
-            return new DummyConditionStrategy($this->query, true);
+            return new ElementConditionStrategy($this->query, $strategyParser);
         }
 
         if ($this->query->getConditionLeft()->getType() === Token::TOKEN_ELEMENT) {
-            return new ElementConditionStrategy($this->query);
+            return new ElementConditionStrategy($this->query, $strategyParser);
         } elseif ($this->query->getConditionLeft()->getType() === Token::TOKEN_ATTRIBUTE) {
-            return new AttributeConditionStrategy($this->query);
+            return new AttributeConditionStrategy($this->query, $strategyParser);
         } elseif ($this->query->getConditionLeft()->getType() === Token::TOKEN_ELEMENT_WITH_ATTRIBUTE) {
-            return new ElementWithAttributeStrategy($this->query);
+            return new ElementWithAttributeStrategy($this->query, $strategyParser);
         } else {
             throw new InvalidQueryException('The element in condition is not valid');
         }

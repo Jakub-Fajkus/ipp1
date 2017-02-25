@@ -155,7 +155,7 @@ class Config
         echo "FILE:".$this->outputFileName . PHP_EOL;
 
         if (!is_file($this->inputFileName)) {
-            throw new InputFileException('Can not open input file');
+            throw new InputFileException('Can not open input file: '.$this->inputFileName);
         }
     }
 

@@ -65,12 +65,8 @@ class SyntacticalAnalyzer
                 $token = $this->getNextToken();
                 if ($token->getType() === Token::TOKEN_FROM) {
                     if ($this->fromElm()) {
-                        if ($this->whereClause()) {
-                            if ($this->orderClause()) {
-                                if ($this->limitN()) {
-                                    return true;
-                                }
-                            }
+                        if ($this->whereClause() || $this->orderClause() || $this->limitN()) {
+                                return true;
                         }
                     }
                 }
@@ -148,6 +144,7 @@ class SyntacticalAnalyzer
         } elseif ($token->getType() === Token::TOKEN_WHERE) {
             return $this->condition();
         } else {
+            $this->returnToken();
             return false;
         }
     }

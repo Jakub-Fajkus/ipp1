@@ -242,8 +242,8 @@ class Query
      */
     public function setLimit(Token $limit)
     {
-        if (!(is_int($limit->getValue()) && $limit->getValue() > 0)) {
-            throw new InvalidQueryException('The limit iteral must be positive integer');
+        if (!(is_int($limit->getValue()) && $limit->getValue() >= 0)) {
+            throw new InvalidQueryException('The limit iteral must be positive integer or zero');
         }
 
         $this->limit = $limit;
@@ -264,13 +264,26 @@ class Query
                 $return = strpos($sourceValue, $this->conditionRight->getValue()) !== false;
             }
         } elseif ($this->conditionRight->getType() === Token::TOKEN_INTEGER) {
-            if ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_LESS) {
-//                $return = strcmp($sourceValue, $this->conditionRight) < 0;
-            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_MORE) {
-//                $return = strcmp($sourceValue, $this->conditionRight) > 0;
-            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_EQUALS) {
-//                $return = strcmp($sourceValue, $this->conditionRight) === 0;
-            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_CONTAINS) {
+            if (is_numeric($sourceValue)) {
+                if ($this->isDouble()) {
+                    $sourceValue = (double)$sourceValue;
+                } elseif (is_int($sourceValue)) {
+                    $sourceValue = (int)$sourceValue;
+                } else {
+                    //todo? throw? or what? the string is not a number
+                    throw new InvalidInputFileFormatException("Could not use string: $sourceValue as a number");
+                }
+            } else {
+                throw new InvalidInputFileFormatException("Could not use string: $sourceValue as a number");
+            }
+
+            if ($this->conditionOperator->getType() === Token::TOKEN_OPERATOR_LESS) {
+                $return = $sourceValue < $this->conditionRight->getValue();
+            } elseif ($this->conditionOperator->getType() === Token::TOKEN_OPERATOR_MORE) {
+                $return = $sourceValue > $this->conditionRight->getValue();
+            } elseif ($this->conditionOperator->getType() === Token::TOKEN_OPERATOR_EQUALS) {
+                $return = $sourceValue == $this->conditionRight->getValue();
+            } elseif ($this->conditionOperator->getType() === Token::TOKEN_CONTAINS) {
                 throw new InvalidQueryException('Contains cannot be used for integers');
             }
         }
@@ -323,4 +336,14 @@ class Query
 //        }
 //        return function () {return true;};
 //    }
+
+
+    protected function isDouble()
+    {
+        //todo:
+        //U desetinných čísel na
+        //vstupu uvažujte pouze formát: volitelné znaménko (+ nebo -), neprázdná posloupnost číslic 0
+        //až 9, tečka (.), neprázdná posloupnost číslic 0 až 9.
+        return true;
+    }
 }

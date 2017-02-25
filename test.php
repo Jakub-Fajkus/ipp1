@@ -4,12 +4,15 @@ $dir = '.';
 $refDir = $dir.'/ref-out';
 
 $referentialCodeFiles = getAllFiles($refDir, '!!!');
+var_dump($referentialCodeFiles);
 $referentialOutFiles = getAllFiles($refDir, 'out');
+var_dump($referentialOutFiles);
 
 $countOfTests = 0;
 $failed = 0;
 
 foreach ($referentialCodeFiles as $index => $refCodeFile) {
+
     $testFailed = false;
     ++$countOfTests;
 
@@ -29,8 +32,13 @@ foreach ($referentialCodeFiles as $index => $refCodeFile) {
     }
     $expectedCode = trim(file_get_contents($refDir . '/' . $refCodeFile . '.!!!'));
 
-    $diffFile = $dir . '/xqr-supplementary-tests/' . $referentialOutFiles[$index] . '.diff';
-    shell_exec("java -jar jexamxml.jar $expectedOutputFile $actualOutputFile $");
+    $diffFile = $dir . '/' . $referentialOutFiles[$index] . '.diff';
+    shell_exec("touch $diffFile");
+    echo "java -jar jexamxml.jar $expectedOutputFile $actualOutputFile $diffFile xqr_options" . PHP_EOL. PHP_EOL. PHP_EOL. PHP_EOL;
+
+    $javaResult = shell_exec("java -jar jexamxml.jar $expectedOutputFile $actualOutputFile $diffFile xqr_options");
+    echo $javaResult;
+
 //    if ($actualOutput !== $expectedOutput) {
 //        $testFailed = true;
 //        echo 'FAILED'.PHP_EOL;
@@ -66,7 +74,7 @@ foreach ($referentialCodeFiles as $index => $refCodeFile) {
     if ($testFailed) {
         ++$failed;
 
-        echo 'Failed with error: ' . file_get_contents($dir . '/' . $referentialOutFiles[$index] . '.err');
+        echo $referentialOutFiles[$index] . ' failed with error: ' . file_get_contents($dir . '/' . $referentialOutFiles[$index] . '.err');
     }
 
     echo PHP_EOL.PHP_EOL;
