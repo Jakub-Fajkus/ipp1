@@ -271,10 +271,10 @@ class Query
                     $sourceValue = (int)$sourceValue;
                 } else {
                     //todo? throw? or what? the string is not a number
-                    throw new InvalidInputFileFormatException("Could not use string: $sourceValue as a number");
+                    throw new InvalidQueryException("Could not use string: $sourceValue as a number");
                 }
             } else {
-                throw new InvalidInputFileFormatException("Could not use string: $sourceValue as a number");
+                throw new InvalidQueryException("Could not use string: $sourceValue as a number");
             }
 
             if ($this->conditionOperator->getType() === Token::TOKEN_OPERATOR_LESS) {
