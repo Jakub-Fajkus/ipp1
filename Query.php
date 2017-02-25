@@ -255,4 +255,79 @@ class Query
 
         $this->limit = $limit;
     }
+
+    public function evaluateQuery($sourceValue)
+    {
+        $return = false;
+
+        if ($this->conditionRight->getType() === Token::TOKEN_STRING) {
+            if ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_LESS) {
+                $return = strcmp($sourceValue, $this->conditionRight->getValue()) < 0;
+            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_MORE) {
+                $return = strcmp($sourceValue, $this->conditionRight->getValue()) > 0;
+            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_EQUALS) {
+                $return = strcmp($sourceValue, $this->conditionRight->getValue()) === 0;
+            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_CONTAINS) {
+                $return = strpos($sourceValue, $this->conditionRight->getValue()) !== false;
+            }
+        } elseif ($this->conditionRight->getType() === Token::TOKEN_INTEGER) {
+            if ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_LESS) {
+//                $return = strcmp($sourceValue, $this->conditionRight) < 0;
+            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_MORE) {
+//                $return = strcmp($sourceValue, $this->conditionRight) > 0;
+            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_EQUALS) {
+//                $return = strcmp($sourceValue, $this->conditionRight) === 0;
+            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_CONTAINS) {
+                throw new InvalidQueryException('Contains cannot be used for integers');
+            }
+        }
+
+        if ($this->negateCondition === true) {
+            return !$return;
+        } else {
+            return $return;
+        }
+    }
+
+
+//    /**
+//     * Closure representing the query condition
+//     *
+//     * @return Closure
+//     */
+//    public function getConditionClosure()
+//    {
+//        //todo: what is the parameters for those closures?
+//        //convert the left side to the integer
+//        if ($this->conditionRight === Token::TOKEN_INTEGER && $this->conditionOperator === Token::TOKEN_OPERATOR_MORE) {
+//            return function ($leftSide) {
+//                if (is_numeric($leftSide)) {
+//                    return $leftSide > $this->conditionRight->getValue();
+//                } else {
+//                    return false;
+//                }
+//            };
+//        }
+//
+//        if ($this->conditionRight === Token::TOKEN_INTEGER && $this->conditionOperator === Token::TOKEN_OPERATOR_LESS) {
+//            return function ($leftSide) {
+//                if (is_numeric($leftSide)) {
+//                    return $leftSide < $this->conditionRight->getValue();
+//                } else {
+//                    return false;
+//                }
+//            };
+//        }
+//
+//        if ($this->conditionRight === Token::TOKEN_INTEGER && $this->conditionOperator === Token::TOKEN_OPERATOR_EQUALS) {
+//            return function ($leftSide) {
+//                if (is_numeric($leftSide)) {
+//                    return $leftSide == $this->conditionRight->getValue(); //== is intentional!
+//                } else {
+//                    return false;
+//                }
+//            };
+//        }
+//        return function () {return true;};
+//    }
 }

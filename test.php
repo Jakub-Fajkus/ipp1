@@ -16,17 +16,21 @@ foreach ($referentialCodeFiles as $index => $refCodeFile) {
     echo "TEST: $refCodeFile".PHP_EOL;
 
     $actualOutput = null;
-    if(is_file($dir . '/' . $referentialOutFiles[$index] . '.out')) {
-        $actualOutput = trim(file_get_contents($dir . '/' . $referentialOutFiles[$index] . '.out'));
+    $actualOutputFile = $dir . '/' . $referentialOutFiles[$index] . '.out';
+    if(is_file($actualOutputFile)) {
+        $actualOutput = trim(file_get_contents($actualOutputFile));
     }
     $actualCode = trim(file_get_contents($dir . '/' . $refCodeFile . '.!!!'));
 
     $expectedOutput = null;
-    if(is_file($refDir . '/' . $referentialOutFiles[$index] . '.out')) {
-        $expectedOutput = trim(file_get_contents($refDir . '/' . $referentialOutFiles[$index] . '.out'));
+    $expectedOutputFile = $refDir . '/' . $referentialOutFiles[$index] . '.out';
+    if(is_file($expectedOutputFile)) {
+        $expectedOutput = trim(file_get_contents($expectedOutputFile));
     }
     $expectedCode = trim(file_get_contents($refDir . '/' . $refCodeFile . '.!!!'));
 
+    $diffFile = $dir . '/xqr-supplementary-tests/' . $referentialOutFiles[$index] . '.diff';
+    shell_exec("java -jar jexamxml.jar $expectedOutputFile $actualOutputFile $");
 //    if ($actualOutput !== $expectedOutput) {
 //        $testFailed = true;
 //        echo 'FAILED'.PHP_EOL;

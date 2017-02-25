@@ -39,9 +39,9 @@ class LexicalAnalyzer
          *  Element names can contain letters, digits, hyphens, underscores, and periods
          *  Element names cannot contain spaces
          */
-        '/^(\.[a-zA-Z_][a-zA-Z0-9\-_]*)/'                         => Token::TOKEN_ATTRIBUTE,
-        '/^([a-zA-Z_][a-zA-Z0-9\-_]*\.[a-zA-Z_][a-zA-Z0-9\-_]*)/' => Token::TOKEN_ELEMENT_WITH_ATTRIBUTE,
-        '/^([a-zA-Z_][a-zA-Z0-9\-_]*)/'                           => Token::TOKEN_ELEMENT,
+        '/^(\.[a-zA-Z_][a-zA-Z0-9\-_]*)/'                         => Token::TOKEN_ATTRIBUTE, //todo: valid xml name
+        '/^([a-zA-Z_][a-zA-Z0-9\-_]*\.[a-zA-Z_][a-zA-Z0-9\-_]*)/' => Token::TOKEN_ELEMENT_WITH_ATTRIBUTE, //todo: valid xml name
+        '/^([a-zA-Z_][a-zA-Z0-9\-_]*)/'                           => Token::TOKEN_ELEMENT,//todo: valid xml name
         '/^(".*?")/'                                              => Token::TOKEN_STRING, //everything between the two "
         '/^(\'.*?\')/'                                            => Token::TOKEN_STRING, //everything between the two '
         '/^([+|-]?[0-9]+)/'                                       => Token::TOKEN_INTEGER,

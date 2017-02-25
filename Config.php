@@ -63,6 +63,7 @@ class Config
         $this->processedParameters = [];
         $this->generateXmlHeader = true;
         $this->rootElementName = '';
+        $this->outputFileName = '';
     }
 
     public function processParameters()
@@ -144,16 +145,17 @@ class Config
             $this->getQueryFromFile($this->getValueFromParameter($queryFile));
         }
 
+        if (!in_array('--input', $this->processedParameters, true)) {
+            //todo: read from stdin
+        }
+
+        if (!in_array('--output', $this->processedParameters, true)) {
+            //todo: write to stdout
+        }
+
         if (!is_file($this->inputFileName)) {
             throw new InputFileException('Can not open input file');
         }
-
-
-        //todo: check if the input, output and query(qf) option was present
-//the file will be opened with the 'w' modificator
-//        if (!is_file($this->outputFileName)) {
-//            throw new OutputFileException();
-//        }
     }
 
     /**
@@ -328,13 +330,12 @@ class Config
         if (is_file($fileName)) {
             $this->query = file_get_contents($fileName);
         } else {
-            if (is_file(__DIR__ . '/' . $fileName)) {
-                $this->query = file_get_contents(__DIR__ . '/' . $fileName);
+            if (is_file(__DIR__.'/'.$fileName)) {
+                $this->query = file_get_contents(__DIR__.'/'.$fileName);
             } else {
-//                throw new InputFileException('N') //todo
+                //                throw new InputFileException('N') //todo
             }
         }
-
 
         if ($this->query === false) {
             throw new InvalidQueryException('Could not read a query from the file: '.$fileName);

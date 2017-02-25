@@ -12,6 +12,7 @@ class SyntacticalAnalyzer
      * @var Query
      */
     protected $query;
+
     /**
      * SyntacticalAnalyzer constructor.
      *

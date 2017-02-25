@@ -11,6 +11,7 @@ $app = new App($config, $output);
 
 try {
     $config->processParameters();
+    //todo: eventually read from the stdin!
     $app->run();
 } catch (InputFileException $exception) {
     $output->writeStderr($exception->getCustomMessage());
@@ -22,6 +23,9 @@ try {
     $output->writeStderr($exception->getCustomMessage());
     exit($exception::CODE);
 } catch (ParametersException $exception) {
+    $output->writeStderr($exception->getCustomMessage());
+    exit($exception::CODE);
+} catch (InvalidInputFileFormatException $exception) {
     $output->writeStderr($exception->getCustomMessage());
     exit($exception::CODE);
 } catch (\Exception $exception) {

@@ -21,6 +21,21 @@ class App
     protected $inputData;
 
     /**
+     * @var Query
+     */
+    protected $query;
+
+    /**
+     * @var XMLParser
+     */
+    protected $xmlParser;
+
+    /**
+     * @var DOMDocument
+     */
+    protected $document;
+
+    /**
      * App constructor.
      *
      * @param Config $config
@@ -50,14 +65,36 @@ class App
         $lexicalAnalyzer = new LexicalAnalyzer($this->config->getQuery());
         $syntacticalAnalyzer = new SyntacticalAnalyzer($lexicalAnalyzer->getTokens());
 
-        $syntacticalAnalyzer->analyze();
-        $query = $syntacticalAnalyzer->getQuery();
-        $query->validate();
+        if ($syntacticalAnalyzer->analyze() === false) {
+            throw new InvalidQueryException('Syntax error in query');
+        }
 
-        $parser = new XMLParser($this->config->getInputFileName());
-        $fromElement = $this->findFromElement($query, $parser);
+        $this->query = $syntacticalAnalyzer->getQuery();
+        $this->query->validate();
+        $this->xmlParser = new XMLParser($this->config->getInputFileName(), $this->query);
 
-        var_dump($fromElement);
+        if ($this->query->getFromElement() === null) {
+            $this->generateEmptyOutput();
+
+            return;
+        }
+
+        $fromElements = $this->findFromElements();
+
+        if (count($fromElements) < 1) {
+            $this->generateEmptyOutput();
+
+            return;
+        }
+
+        $selectElements = [];
+        foreach ($fromElements as $fromElement) {
+            $selectElements = array_merge($selectElements, $this->selectElements($fromElement));
+        }
+
+        //todo: order and limit?
+
+        $this->saveDomToFile($selectElements);
     }
 
     /**
@@ -82,23 +119,27 @@ class App
 
     /**
      * @param Query     $query
-     * @param XMLParser $parser
+     * @param XMLParser $$this->xmlParser
+     *
+     * @return SimpleXMLElement[]
      *
      * @throws Exception
      */
-    protected function findFromElement(Query $query, XMLParser $parser)
+    protected function findFromElements()
     {
-        $queryElement = $query->getFromElement();
+        $queryElement = $this->query->getFromElement();
         $findRoot = false;
 
         if ($queryElement->getType() === Token::TOKEN_ELEMENT) {
             $queryElementName = $queryElement->getValue();
-            $decisionMaker = function (SimpleXMLIterator $rootElement, $attributes) use ($queryElementName) {
+            $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($queryElementName) {
                 return $rootElement->getName() === $queryElementName;
             };
+
+            $fromElements = $this->xmlParser->findFromElements($decisionMaker, null, $findRoot);
         } elseif ($queryElement->getType() === Token::TOKEN_ATTRIBUTE) {
             $attributeName = str_replace('.', '', $queryElement->getValue()); //remove the dot at the 0 index
-            $decisionMaker = function (SimpleXMLIterator $rootElement, $attributes) use ($attributeName) {
+            $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($attributeName) {
                 foreach ($attributes as $key => $value) {
                     if ($key === $attributeName) {
                         return true;
@@ -107,9 +148,11 @@ class App
 
                 return false;
             };
+
+            $fromElements = $this->xmlParser->findFromElements($decisionMaker, null, $findRoot);
         } elseif ($queryElement->getType() === Token::TOKEN_ELEMENT_WITH_ATTRIBUTE) {
             list($elementName, $attributeName) = explode('.', $queryElement->getValue());
-            $decisionMaker = function (SimpleXMLIterator $rootElement, $attributes) use ($attributeName, $elementName) {
+            $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($attributeName, $elementName) {
                 if ($rootElement->getName() !== $elementName) {
                     return false;
                 }
@@ -122,16 +165,73 @@ class App
 
                 return false;
             };
-        } elseif ($queryElement->getType() === Token::TOKEN_ROOT) {
-            $decisionMaker = function () {
-                return false;
-            };
 
-            $findRoot = true;
+            $fromElements = $this->xmlParser->findFromElements($decisionMaker, null, $findRoot);
+        } elseif ($queryElement->getType() === Token::TOKEN_ROOT) {
+            $fromElements = $this->xmlParser->getIterator(); //get the root
         } else {
             throw new \Exception('Invalid query type');
         }
 
-        return $parser->findElement($decisionMaker, null, $findRoot);
+        return $fromElements;
+    }
+
+    /**
+     * @param SimpleXMLElement $fromElement
+     *
+     * @return SimpleXMLElement[]
+     *
+     * @throws InvalidQueryException
+     */
+    protected function selectElements(SimpleXMLElement $fromElement)
+    {
+        return $this->xmlParser->findSelectElements($fromElement);
+    }
+
+    protected function generateEmptyOutput()
+    {
+        $this->saveDomToFile([]);
+    }
+
+    /**
+     * @param SimpleXMLElement[] $elements
+     */
+    protected function saveDomToFile($elements) {
+//        $this->config->setRootElementName('mujRoot'); //todo: testing
+//        $this->config->setGenerateXmlHeader(false);
+
+        $document = new DOMDocument();
+        $emptyDocumentHeader = $document->saveXML();
+        $document->formatOutput = true;
+        $rootElement = null; //either the whole document or the artificial root
+
+        if ($this->config->getRootElementName() !== '') {
+            $rootElement = $document->createElement($this->config->getRootElementName());
+            $document->appendChild($rootElement);
+        } else {
+            $rootElement = $document;
+        }
+
+        foreach ($elements as $selectElement) {
+            $node = dom_import_simplexml($selectElement);
+            $rootElement->appendChild($document->importNode($node, true));
+        }
+
+        if ($this->config->isGenerateXmlHeader()) {
+            $xml = $document->saveXML(null, LIBXML_NOEMPTYTAG);
+        } else {
+            $xml = str_replace($emptyDocumentHeader, '', $document->saveXML(null, LIBXML_NOEMPTYTAG));
+        }
+
+        echo "TUUU";
+        var_dump($xml);
+
+
+        if ($this->config->getOutputFileName() === '') {
+            //write to the stdout
+            $this->output->writeStdout($xml);
+        } elseif (false === file_put_contents($this->config->getOutputFileName(), $xml)) {
+            throw new OutputFileException('Can not write to the output file');
+        }
     }
 }
