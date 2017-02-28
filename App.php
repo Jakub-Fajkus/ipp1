@@ -89,8 +89,6 @@ class App
 
         $selectElements = $this->selectElements($fromElements[0]);
 
-        //todo: order
-
         $this->generateOutput($selectElements);
     }
 
@@ -99,7 +97,28 @@ class App
      */
     protected function printHelp()
     {
-        $this->output->writeStdout('HELP'); //todo:!
+$help = <<<HELP
+    * --help                Show this help
+    * -h                    Same as --help
+    
+    * --input=filename      Input XML file
+    * -i=filename           Same as --input
+    
+    * --output=filename     Output XML file with the content filtered by the query
+    * -o=filename           Same as --output
+    
+    * --query='query'       Query in the query language(the query cannot contain the apostrophe(') character)
+    * -q='query'            Same as --query
+    
+    * --qf=filename         Query in the query language located in the external file(the query there can contain apostrophes('))
+    
+    * -n                    Do not generate the XML header in the output file
+    
+    * --root=element        Name of the pair root element containing the result elements. If the option is not present, the result elements are not contained within any element(even though that violates with the XML standard)
+    * -r=element            Same as --root
+HELP;
+
+        $this->output->writeStdout($help);
     }
 
     /**
