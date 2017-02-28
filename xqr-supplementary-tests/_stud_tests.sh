@@ -74,6 +74,8 @@ LOG_PATH="./"
 
 #MOJE: ! ZPOPIROVAT VSE DO TETO SLOZKY
 cp ../* .
+export XDEBUG_CONFIG="remote_enable=1 remote_mode=req remote_port=9000 remote_host=127.0.0.1 remote_connect_back=1"
+
 
 echo " test01: Zobrazi napovedu; Expected output: test01.out; Expected return code: 0"
 $INTERPRETER $TASK.$EXTENSION --help > "${LOCAL_OUT_PATH3}test01.out" 2> ${LOG_PATH}test01.err

@@ -70,8 +70,9 @@ class Query
     public function validate()
     {
         //Na celočíselný literál nelze aplikovat relační operátor CONTAINS (chyba dotazu).
-        if ($this->conditionOperator === Token::TOKEN_CONTAINS &&
-            $this->conditionRight->getType() !== Token::TOKEN_STRING) {
+        if ($this->conditionOperator !== null
+            && $this->conditionOperator->getType() === Token::TOKEN_CONTAINS
+            && $this->conditionRight->getType() !== Token::TOKEN_STRING) {
             throw new InvalidQueryException('Can not use CONTAINS with number literal');
         }
 

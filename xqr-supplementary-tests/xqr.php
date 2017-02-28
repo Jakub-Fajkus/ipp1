@@ -7,11 +7,9 @@ $output = new Output();
 $config = new Config($output, $argv);
 $app = new App($config, $output);
 
-//var_dump($argv);
 
 try {
     $config->processParameters();
-    //todo: eventually read from the stdin!
     $app->run();
 } catch (InputFileException $exception) {
     $output->writeStderr($exception->getCustomMessage());
@@ -36,7 +34,6 @@ try {
 } catch (\Exception $exception) {
     $output->writeStdout('Other error');
     $output->writeStderr($exception->getTraceAsString());
-    var_dump($exception); //todo: remove!
     exit(4); //the SimpleXMLElement throws an exception while parsing
 }
 
