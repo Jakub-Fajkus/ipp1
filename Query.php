@@ -255,13 +255,13 @@ class Query
         $return = false;
 
         if ($this->conditionRight->getType() === Token::TOKEN_STRING) {
-            if ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_LESS) {
+            if ($this->conditionOperator->getType() === Token::TOKEN_OPERATOR_LESS) {
                 $return = strcmp($sourceValue, $this->conditionRight->getValue()) < 0;
-            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_MORE) {
+            } elseif ($this->conditionOperator->getType() === Token::TOKEN_OPERATOR_MORE) {
                 $return = strcmp($sourceValue, $this->conditionRight->getValue()) > 0;
-            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_OPERATOR_EQUALS) {
+            } elseif ($this->conditionOperator->getType() === Token::TOKEN_OPERATOR_EQUALS) {
                 $return = strcmp($sourceValue, $this->conditionRight->getValue()) === 0;
-            } elseif ($this->conditionOperator->getValue() === Token::TOKEN_CONTAINS) {
+            } elseif ($this->conditionOperator->getType() === Token::TOKEN_CONTAINS) {
                 $return = strpos($sourceValue, $this->conditionRight->getValue()) !== false;
             }
         } elseif ($this->conditionRight->getType() === Token::TOKEN_INTEGER) {

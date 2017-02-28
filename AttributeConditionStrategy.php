@@ -32,10 +32,9 @@ class AttributeConditionStrategy extends BaseConditionStrategy
                 $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($thisStrategy) {
                     return $thisStrategy->meetsCondition($rootElement);
                 };
-//done so far
 
                 //did we found the element we are searching for?
-                if ($element->getName() === $this->query->getSelectElement()->getValue()) {
+                if ($name === $this->query->getSelectElement()->getValue()) {
                     //now, look deeper and find the element from the where clause(if present)
                     $subElements = $this->xmlParser->findFromElements($decisionMaker, $element, false, true);
 
@@ -86,6 +85,8 @@ class AttributeConditionStrategy extends BaseConditionStrategy
     {
         $attributeName = str_replace('.', '', $this->query->getConditionLeft()->getValue()); //remove the dot
 
+
+        //todo: this may return the SimpleXMLElement instance!!!
         return $element->attributes()[$attributeName];
     }
 }

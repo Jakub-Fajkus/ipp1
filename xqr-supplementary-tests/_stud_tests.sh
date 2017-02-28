@@ -124,5 +124,13 @@ $INTERPRETER $TASK.$EXTENSION --input=${LOCAL_IN_PATH}test11.in --output=${LOCAL
 echo -n $? > test11.!!!
 
 echo " test12: SELECT elementu primo zanoreneho v koreni; Expected output: test12.out; Expected return code: 0"
-$INTERPRETER $TASK.$EXTENSION --input=${LOCAL_IN_PATH}test12.in --output=${LOCAL_OUT_PATH}test12.out --qf=${LOCAL_OUT_PATH}test12.out --root=MyCatalog 2> ${LOG_PATH}test12.err
+$INTERPRETER $TASK.$EXTENSION --input=${LOCAL_IN_PATH}test12.in --output=${LOCAL_OUT_PATH}test12.out --qf=${LOCAL_OUT_PATH}test12.qu --root=MyCatalog 2> ${LOG_PATH}test12.err
 echo -n $? > test12.!!!
+#
+echo " test20: SELECT elementu hluboko v koreni podle element.attribute(ve where je stejny element jako v select) ; Expected output: test20.out; Expected return code: 0"
+$INTERPRETER $TASK.$EXTENSION --input=${LOCAL_IN_PATH}test20.in --output=${LOCAL_OUT_PATH}test20.out --qf=${LOCAL_OUT_PATH}test20.qu --root=MyCatalog 2> ${LOG_PATH}test20.err
+echo -n $? > test20.!!!
+
+echo " test21: SELECT elementu hluboko v koreni podle element.attribute ; Expected output: test21.out; Expected return code: 0"
+$INTERPRETER $TASK.$EXTENSION --input=${LOCAL_IN_PATH}test21.in --output=${LOCAL_OUT_PATH}test21.out --qf=${LOCAL_OUT_PATH}test21.qu --root=maleAuthorsBooks 2> ${LOG_PATH}test21.err
+echo -n $? > test21.!!!

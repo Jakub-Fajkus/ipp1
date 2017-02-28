@@ -1,0 +1,1 @@
+SELECT book FROM ROOT WHERE book.id CONTAINS"2"

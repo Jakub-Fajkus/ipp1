@@ -130,7 +130,8 @@ class App
     protected function findFromElements()
     {
         $queryElement = $this->query->getFromElement();
-        $findRoot = $this->query->getSelectElement()->getValue() === Token::TOKEN_ROOT;
+//        $findRoot = $this->query->getSelectElement()->getValue() === Token::TOKEN_ROOT;
+        $findRoot = true;
 
         if ($queryElement->getType() === Token::TOKEN_ROOT) {
             $fromElements = [$this->xmlParser->getIterator()]; //get the root)

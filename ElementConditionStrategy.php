@@ -6,8 +6,6 @@
  */
 class ElementConditionStrategy extends BaseConditionStrategy
 {
-
-
     public function meetsCondition(SimpleXMLElement $element)
     {
         $name = $element->getName();
@@ -18,8 +16,6 @@ class ElementConditionStrategy extends BaseConditionStrategy
         if ($this->query->getConditionLeft() === null) {
             if ($name === $this->query->getSelectElement()->getValue()) {
                 $this->selectedElements[] = $element;
-//                if ($this->goDeeper($element)) {
-//                }
                 return true;
             } else {
                 return $this->goDeeper($element);
