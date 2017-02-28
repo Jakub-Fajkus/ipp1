@@ -136,40 +136,17 @@ class App
             $fromElements = [$this->xmlParser->getIterator()]; //get the root)
         } elseif ($queryElement->getType() === Token::TOKEN_ELEMENT) {
             $queryElementName = $queryElement->getValue();
-            $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($queryElementName) {
-                return $rootElement->getName() === $queryElementName;
-            };
+            $decisionMaker = $this->getClosureForElement($queryElementName);
 
             $fromElements = $this->xmlParser->findFromElements($decisionMaker, null, $findRoot);
         } elseif ($queryElement->getType() === Token::TOKEN_ATTRIBUTE) {
             $attributeName = str_replace('.', '', $queryElement->getValue()); //remove the dot at the 0 index
-            $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($attributeName) {
-                foreach ($attributes as $key => $value) {
-                    if ($key === $attributeName) {
-                        return true;
-                    }
-                }
-
-                return false;
-            };
+            $decisionMaker = $this->getClosureForAttribute($attributeName);
 
             $fromElements = $this->xmlParser->findFromElements($decisionMaker, null, $findRoot);
         } elseif ($queryElement->getType() === Token::TOKEN_ELEMENT_WITH_ATTRIBUTE) {
             list($elementName, $attributeName) = explode('.', $queryElement->getValue());
-            $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($attributeName, $elementName) {
-                if ($rootElement->getName() !== $elementName) {
-                    return false;
-                }
-
-                foreach ($attributes as $key => $value) {
-                    if ($key === $attributeName) {
-                        return true;
-                    }
-                }
-
-                return false;
-            };
-
+            $decisionMaker = $this->getClosureForElementWithAttribute($attributeName, $elementName);
             $fromElements = $this->xmlParser->findFromElements($decisionMaker, null, $findRoot);
         } else {
             throw new \Exception('Invalid query type');
@@ -236,5 +213,56 @@ class App
         } elseif (false === file_put_contents($this->config->getOutputFileName(), $xml)) {
             throw new OutputFileException('Can not write to the output file');
         }
+    }
+
+    /**
+     * @param $attributeName
+     * @param $elementName
+     * @return Closure
+     */
+    protected function getClosureForElementWithAttribute($attributeName, $elementName)
+    {
+        return function (SimpleXMLElement $rootElement, $attributes) use ($attributeName, $elementName) {
+            if ($rootElement->getName() !== $elementName) {
+                return false;
+            }
+
+            foreach ($attributes as $key => $value) {
+                if ($key === $attributeName) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+    }
+
+    /**
+     * @param $attributeName
+     * @return Closure
+     */
+    protected function getClosureForAttribute($attributeName)
+    {
+        return function (SimpleXMLElement $rootElement, $attributes) use ($attributeName) {
+            foreach ($attributes as $key => $value) {
+                if ($key === $attributeName) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+    }
+
+    /**
+     * @param $queryElementName
+     *
+     * @return Closure
+     */
+    protected function getClosureForElement($queryElementName)
+    {
+        return function (SimpleXMLElement $rootElement, $attributes) use ($queryElementName) {
+            return $rootElement->getName() === $queryElementName;
+        };
     }
 }
