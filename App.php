@@ -71,7 +71,7 @@ class App
 
         $this->query = $syntacticalAnalyzer->getQuery();
         $this->query->validate();
-        $this->xmlParser = new XMLParser($this->config->getInputFileName(), $this->query);
+        $this->xmlParser = new XMLParser($this->inputData, $this->query);
 
         if ($this->query->getFromElement() === null) {
             $this->generateEmptyOutput();
@@ -81,7 +81,7 @@ class App
 
         $fromElements = $this->findFromElements();
 
-        if (count($fromElements) < 1) {
+        if (count($fromElements) < 1 || $fromElements[0] === null) {
             $this->generateEmptyOutput();
 
             return;
@@ -91,7 +91,7 @@ class App
 
         //todo: order
 
-        $this->saveDomToFile($selectElements);
+        $this->generateOutput($selectElements);
     }
 
     /**
@@ -107,10 +107,15 @@ class App
      */
     protected function readInputData()
     {
-        $this->inputData = file_get_contents($this->config->getInputFileName());
+        //if we have the output file
+        if ($this->config->getInputFileName() !== '') {
+            $this->inputData = file_get_contents($this->config->getInputFileName());
 
-        if ($this->inputData === false) {
-            throw new InputFileException();
+            if ($this->inputData === false) {
+                throw new InputFileException();
+            }
+        } else {
+            $this->inputData = file_get_contents('php://stdin');
         }
     }
 
@@ -187,20 +192,19 @@ class App
 
     protected function generateEmptyOutput()
     {
-        $this->saveDomToFile([]);
+        $this->generateOutput([]);
     }
 
     /**
      * @param SimpleXMLElement[] $elements
      */
-    protected function saveDomToFile($elements) {
+    protected function generateOutput($elements) {
 //        $this->config->setRootElementName('mujRoot'); //todo: testing
 //        $this->config->setGenerateXmlHeader(false);
 
         if ($this->query->getLimit() !== null) {
             $elements = array_slice($elements, 0, $this->query->getLimit()->getValue());
         }
-
 
         $document = new DOMDocument('1.0', 'UTF-8');
         $emptyDocumentHeader = $document->saveXML();
@@ -225,7 +229,6 @@ class App
             $xml = str_replace($emptyDocumentHeader, '', $document->saveXML());
         }
 
-//        echo $xml;
 
         if ($this->config->getOutputFileName() === '') {
             //write to the stdout

@@ -18,10 +18,14 @@ class XMLParser
      *
      * @param $fileName
      */
-    public function __construct($fileName, $query)
+    public function __construct($xmlString, $query)
     {
-        if (!empty($fileName)) {
-            $this->iterator = @new SimpleXMLElement($fileName, 0, true);
+        if (!empty($xmlString)) {
+            try {
+                $this->iterator = @new SimpleXMLElement($xmlString, 0);
+            } catch (\Exception $exception) {
+                throw new InvalidInputFileFormatException('Could not parse input file: ' . $xmlString . '. More info: '. $exception->getMessage());
+            }
         }
 
         $this->query = $query;
@@ -115,33 +119,9 @@ class XMLParser
             $foundElements = $strategy->getSelectedElements();
 
             return $foundElements;
-            //todo: this will be funnier!
         } else {
-            //tood?
+            //todo?
         }
-    }
-
-    public function neco()
-    {
-        //            $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($selectElementName, $strategy) {
-//
-//
-//
-//                return $rootElement->getName() === $selectElementName;
-//            };
-//
-//        $fromElement->rewind();
-//        $foundElements = $this->xmlParser->findFromElements($decisionMaker, $fromElement, $findRoot, false, true);
-//
-//        if ($this->query->getConditionLeft() === '') {
-//            return $foundElements;
-//        }
-//
-//        return $this->filterSelectElements($foundElements);
-    }
-
-    public function getRoot()
-    {
     }
 
     /**

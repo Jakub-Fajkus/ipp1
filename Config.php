@@ -64,6 +64,7 @@ class Config
         $this->generateXmlHeader = true;
         $this->rootElementName = '';
         $this->outputFileName = '';
+        $this->inputFileName = '';
     }
 
     public function processParameters()
@@ -144,18 +145,10 @@ class Config
             $this->getQueryFromFile($this->getValueFromParameter($queryFile));
         }
 
-        if (!in_array('--input', $this->processedParameters, true)) {
-            //todo: read from stdin
-        }
-
-        if (!in_array('--output', $this->processedParameters, true)) {
-            //todo: write to stdout
-        }
-
-        echo "FILE:".$this->outputFileName . PHP_EOL;
-
-        if (!is_file($this->inputFileName)) {
-            throw new InputFileException('Can not open input file: '.$this->inputFileName);
+        if (in_array('--input', $this->processedParameters, true)) {
+            if (!is_file($this->inputFileName)) {
+                throw new InputFileException('Can not open input file: '.$this->inputFileName);
+            }
         }
     }
 
@@ -334,7 +327,8 @@ class Config
             if (is_file(__DIR__.'/'.$fileName)) {
                 $this->query = file_get_contents(__DIR__.'/'.$fileName);
             } else {
-                //                throw new InputFileException('N') //todo
+                //todo: test absolute and relative urls: /file, file, .file, ./file
+                //throw new InputFileException('N')
             }
         }
 

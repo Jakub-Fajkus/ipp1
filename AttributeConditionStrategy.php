@@ -20,7 +20,7 @@ class AttributeConditionStrategy extends BaseConditionStrategy
             //the actual element is the select element
             if ($name === $this->query->getSelectElement()->getValue()) {
                 if ($this->hasAttribute($element) && $this->query->evaluateQuery($this->getAttributeValue($element))) {
-                    $this->selectedElements[] = $element; //todo: should be added?
+                    $this->selectedElements[] = $element;
 
                     return true;
                 }
@@ -40,7 +40,7 @@ class AttributeConditionStrategy extends BaseConditionStrategy
                     $subElements = $this->xmlParser->findFromElements($decisionMaker, $element, false, true);
 
                     if (count($subElements) > 0) {
-                        $this->selectedElements[] = $element; //todo:remove?
+                        $this->selectedElements[] = $element;
 
                         return true;
                     } else {

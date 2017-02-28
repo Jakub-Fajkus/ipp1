@@ -265,7 +265,7 @@ class Query
             }
         } elseif ($this->conditionRight->getType() === Token::TOKEN_INTEGER) {
             if (is_numeric($sourceValue)) {
-                if ($this->isDouble()) {
+                if ($this->isDouble($sourceValue)) {
                     $sourceValue = (double)$sourceValue;
                 } elseif (is_int($sourceValue)) {
                     $sourceValue = (int)$sourceValue;
@@ -295,55 +295,9 @@ class Query
         }
     }
 
-
-//    /**
-//     * Closure representing the query condition
-//     *
-//     * @return Closure
-//     */
-//    public function getConditionClosure()
-//    {
-//        //todo: what is the parameters for those closures?
-//        //convert the left side to the integer
-//        if ($this->conditionRight === Token::TOKEN_INTEGER && $this->conditionOperator === Token::TOKEN_OPERATOR_MORE) {
-//            return function ($leftSide) {
-//                if (is_numeric($leftSide)) {
-//                    return $leftSide > $this->conditionRight->getValue();
-//                } else {
-//                    return false;
-//                }
-//            };
-//        }
-//
-//        if ($this->conditionRight === Token::TOKEN_INTEGER && $this->conditionOperator === Token::TOKEN_OPERATOR_LESS) {
-//            return function ($leftSide) {
-//                if (is_numeric($leftSide)) {
-//                    return $leftSide < $this->conditionRight->getValue();
-//                } else {
-//                    return false;
-//                }
-//            };
-//        }
-//
-//        if ($this->conditionRight === Token::TOKEN_INTEGER && $this->conditionOperator === Token::TOKEN_OPERATOR_EQUALS) {
-//            return function ($leftSide) {
-//                if (is_numeric($leftSide)) {
-//                    return $leftSide == $this->conditionRight->getValue(); //== is intentional!
-//                } else {
-//                    return false;
-//                }
-//            };
-//        }
-//        return function () {return true;};
-//    }
-
-
-    protected function isDouble()
+    protected function isDouble($sourceValue)
     {
-        //todo:
-        //U desetinných čísel na
-        //vstupu uvažujte pouze formát: volitelné znaménko (+ nebo -), neprázdná posloupnost číslic 0
-        //až 9, tečka (.), neprázdná posloupnost číslic 0 až 9.
-        return true;
+        $matches = [];
+        return true === preg_match('/\s*[+|-]?\d+\.\d+/', $sourceValue, $matches);
     }
 }

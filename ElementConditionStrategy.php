@@ -62,7 +62,7 @@ class ElementConditionStrategy extends BaseConditionStrategy
             $subElements = $this->xmlParser->findFromElements($decisionMaker, $element, false, true);
 
             if (count($subElements) > 0) {
-                $this->selectedElements[] = $element; //todo:remove?
+                $this->selectedElements[] = $element;
 
                 return true;
             } else {
