@@ -96,32 +96,14 @@ class XMLParser
         $strategy = $this->getStrategyForQuery();
 
 
-        //the element in where is identical to the element in the select
-        if ($this->query->getConditionLeft() === null || $this->query->getSelectElement()->getValue() === $this->query->getConditionLeft()->getValue()) {
-            //go through the elements and look for select element. when it is found check ensure the condition is met
+        $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($selectElementName, $strategy) {
+            return $strategy->meetsCondition($rootElement);
+        };
 
-            $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($selectElementName, $strategy) {
-                return $strategy->meetsCondition($rootElement);
-            };
+        $this->findFromElements($decisionMaker, $fromElement, true, false);
+        $foundElements = $strategy->getSelectedElements();
 
-            $this->findFromElements($decisionMaker, $fromElement, true, false);
-            $foundElements = $strategy->getSelectedElements();
-
-            return $foundElements;
-        } else if ($this->query->getConditionLeft() !== null) {
-
-            $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($selectElementName, $strategy) {
-                return $strategy->meetsCondition($rootElement);
-                return true;
-            };
-
-            $this->findFromElements($decisionMaker, $fromElement, true, false);
-            $foundElements = $strategy->getSelectedElements();
-
-            return $foundElements;
-        } else {
-            //todo?
-        }
+        return $foundElements;
     }
 
     /**

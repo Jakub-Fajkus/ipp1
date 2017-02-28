@@ -270,7 +270,6 @@ class Query
                 } elseif (is_int($sourceValue)) {
                     $sourceValue = (int)$sourceValue;
                 } else {
-                    //todo? throw? or what? the string is not a number
                     throw new InvalidQueryException("Could not use string: $sourceValue as a number");
                 }
             } else {
