@@ -71,7 +71,7 @@ class Config
     {
         $queryFile = null;
 
-        if (in_array('--help', $this->parameters, true)) {
+        if (in_array('--help', $this->parameters, true) || in_array('-h', $this->parameters, true)) {
             //Tento parametr nelze kombinovat s žádným dalším parametrem, jinak skript ukončete s chybou.
             if (count($this->parameters) !== 2) {
                 throw new ParametersException('Can not use --help with any other parameter');
@@ -121,7 +121,7 @@ class Config
                 $this->processedParameters[] = '--qf';
                 $queryFile = $actual;
             } elseif (strpos($actual, '-n') === 0) {
-                if ($this->wasProcessed('--n')) {
+                if ($this->wasProcessed('-n')) {
                     throw new ParametersException('Cannot use n parameter twice');
                 }
 
@@ -149,6 +149,10 @@ class Config
             if (!is_file($this->inputFileName)) {
                 throw new InputFileException('Can not open input file: '.$this->inputFileName);
             }
+        }
+
+        if (!(in_array('--qf', $this->processedParameters, true) || in_array('--query', $this->processedParameters, true))) {
+            throw new ParametersException('No query specified');
         }
     }
 
