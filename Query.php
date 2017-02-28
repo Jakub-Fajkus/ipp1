@@ -298,6 +298,7 @@ class Query
     protected function isDouble($sourceValue)
     {
         $matches = [];
-        return true === preg_match('/\s*[+|-]?\d+\.\d+/', $sourceValue, $matches);
+        $ret = preg_match('/\s*[+|-]?\d+\.\d+/', $sourceValue, $matches);
+        return $ret === 1;
     }
 }
