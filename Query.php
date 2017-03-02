@@ -69,10 +69,11 @@ class Query
      */
     public function validate()
     {
-        //Na celočíselný literál nelze aplikovat relační operátor CONTAINS (chyba dotazu).
+        //can not apply CONTAINS on int(Invalid query)
         if ($this->conditionOperator !== null
             && $this->conditionOperator->getType() === Token::TOKEN_CONTAINS
-            && $this->conditionRight->getType() !== Token::TOKEN_STRING) {
+            && $this->conditionRight->getType() !== Token::TOKEN_STRING
+        ) {
             throw new InvalidQueryException('Can not use CONTAINS with number literal');
         }
 
@@ -250,6 +251,11 @@ class Query
         $this->limit = $limit;
     }
 
+    /**
+     * @param $sourceValue
+     * @return bool
+     * @throws InvalidQueryException
+     */
     public function evaluateQuery($sourceValue)
     {
         $return = false;
@@ -265,17 +271,7 @@ class Query
                 $return = strpos($sourceValue, $this->conditionRight->getValue()) !== false;
             }
         } elseif ($this->conditionRight->getType() === Token::TOKEN_INTEGER) {
-            if (is_numeric($sourceValue)) {
-                if ($this->isDouble($sourceValue)) {
-                    $sourceValue = (double)$sourceValue;
-                } elseif (is_int($sourceValue)) {
-                    $sourceValue = (int)$sourceValue;
-                } else {
-                    throw new InvalidQueryException("Could not use string: $sourceValue as a number");
-                }
-            } else {
-                throw new InvalidQueryException("Could not use string: $sourceValue as a number");
-            }
+            $sourceValue = $this->getNumericValue($sourceValue);
 
             if ($this->conditionOperator->getType() === Token::TOKEN_OPERATOR_LESS) {
                 $return = $sourceValue < $this->conditionRight->getValue();
@@ -295,10 +291,64 @@ class Query
         }
     }
 
+    /**
+     * @return BaseConditionStrategy
+     * @throws \InvalidInputFileFormatException
+     *
+     * @throws \InputFileException
+     * @throws InvalidQueryException
+     */
+    public function getStrategy()
+    {
+        $strategyParser = new XMLParser(null, $this);
+
+        if ($this->getConditionLeft() === null) {
+            return new ElementConditionStrategy($this, $strategyParser);
+        }
+
+        if ($this->getConditionLeft()->getType() === Token::TOKEN_ELEMENT) {
+            return new ElementConditionStrategy($this, $strategyParser);
+        } elseif ($this->getConditionLeft()->getType() === Token::TOKEN_ATTRIBUTE) {
+            return new AttributeConditionStrategy($this, $strategyParser);
+        } elseif ($this->getConditionLeft()->getType() === Token::TOKEN_ELEMENT_WITH_ATTRIBUTE) {
+            return new ElementWithAttributeStrategy($this, $strategyParser);
+        } else {
+            throw new InvalidQueryException('The element in condition is not valid');
+        }
+    }
+
+    /**
+     * @param string|int|float $sourceValue
+     *
+     * @return bool
+     */
     protected function isDouble($sourceValue)
     {
         $matches = [];
         $ret = preg_match('/\s*[+|-]?\d+\.\d+/', $sourceValue, $matches);
+
         return $ret === 1;
+    }
+
+    /**
+     * @param $sourceValue
+     *
+     * @return float|int
+     *
+     * @throws InvalidQueryException
+     */
+    protected function getNumericValue($sourceValue)
+    {
+        if (is_numeric($sourceValue)) {
+            if ($this->isDouble($sourceValue)) {
+                return (double)$sourceValue;
+            } elseif (is_int($sourceValue)) {
+                return (int)$sourceValue;
+            } else {
+                throw new InvalidQueryException("Could not use string: $sourceValue as a number");
+            }
+        } else {
+            throw new InvalidQueryException("Could not use string: $sourceValue as a number");
+        }
     }
 }

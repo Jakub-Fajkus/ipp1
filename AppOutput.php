@@ -3,7 +3,7 @@
 /**
  * Class Output.
  */
-class Output
+class AppOutput
 {
     /**
      * @var resource
@@ -49,5 +49,16 @@ class Output
     protected function write($stream, $text)
     {
         fwrite($stream, $text);
+    }
+
+    /**
+     * @param $fileName
+     * @param $xml
+     *
+     * @return int|bool
+     */
+    public function writeToFile($fileName, $xml)
+    {
+        return file_put_contents($fileName, $xml);
     }
 }

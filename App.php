@@ -11,9 +11,14 @@ class App
     protected $config;
 
     /**
-     * @var Output
+     * @var AppOutput
      */
     protected $output;
+
+    /**
+     * @var AppInput
+     */
+    protected $input;
 
     /**
      * @var string
@@ -39,18 +44,20 @@ class App
      * App constructor.
      *
      * @param Config $config
-     * @param Output $output
      */
-    public function __construct(Config $config, Output $output)
+    public function __construct(Config $config)
     {
         $this->config = $config;
-        $this->output = $output;
+        $this->output = new AppOutput();
+        $this->input = new AppInput();
     }
 
     /**
      * @throws \InvalidQueryException
      * @throws \InputFileException
      * @throws \Exception
+     * @throws \OutputFileException
+     * @throws \InvalidInputFileFormatException
      */
     public function run()
     {
@@ -97,7 +104,7 @@ class App
      */
     protected function printHelp()
     {
-$help = <<<HELP
+        $help = <<<HELP
     * --help                Show this help
     * -h                    Same as --help
     
@@ -128,18 +135,14 @@ HELP;
     {
         //if we have the output file
         if ($this->config->getInputFileName() !== '') {
-            $this->inputData = file_get_contents($this->config->getInputFileName());
-
-            if ($this->inputData === false) {
-                throw new InputFileException();
-            }
+            $this->inputData = $this->input->getFileContent($this->config->getInputFileName());
         } else {
-            $this->inputData = file_get_contents('php://stdin');
+            $this->inputData = $this->input->readFromStdin();
         }
     }
 
     /**
-     * @param Query     $query
+     * @param Query $query
      * @param XMLParser $$this->xmlParser
      *
      * @return SimpleXMLElement[]
@@ -149,7 +152,6 @@ HELP;
     protected function findFromElements()
     {
         $queryElement = $this->query->getFromElement();
-//        $findRoot = $this->query->getSelectElement()->getValue() === Token::TOKEN_ROOT;
         $findRoot = true;
 
         if ($queryElement->getType() === Token::TOKEN_ROOT) {
@@ -179,6 +181,7 @@ HELP;
      * @param SimpleXMLElement $fromElement
      *
      * @return SimpleXMLElement[]
+     * @throws \InputFileException
      *
      * @throws InvalidQueryException
      */
@@ -194,43 +197,24 @@ HELP;
 
     /**
      * @param SimpleXMLElement[] $elements
+     * @throws \OutputFileException
      */
-    protected function generateOutput($elements) {
-//        $this->config->setRootElementName('mujRoot'); //todo: testing
-//        $this->config->setGenerateXmlHeader(false);
-
+    protected function generateOutput($elements)
+    {
         if ($this->query->getLimit() !== null) {
             $elements = array_slice($elements, 0, $this->query->getLimit()->getValue());
         }
 
-        $document = new DOMDocument('1.0', 'UTF-8');
-        $emptyDocumentHeader = $document->saveXML();
-        $document->formatOutput = true;
-        $rootElement = null; //either the whole document or the artificial root
-
-        if ($this->config->getRootElementName() !== '') {
-            $rootElement = $document->createElement($this->config->getRootElementName());
-            $document->appendChild($rootElement);
-        } else {
-            $rootElement = $document;
-        }
-
-        foreach ($elements as $selectElement) {
-            $node = dom_import_simplexml($selectElement);
-            $rootElement->appendChild($document->importNode($node, true));
-        }
-
-        if ($this->config->isGenerateXmlHeader()) {
-            $xml = $document->saveXML();
-        } else {
-            $xml = str_replace($emptyDocumentHeader, '', $document->saveXML());
-        }
-
+        $xml = ElementUtils::getXmlString(
+            $elements,
+            $this->config->isGenerateXmlHeader(),
+            $this->config->getRootElementName()
+        );
 
         if ($this->config->getOutputFileName() === '') {
             //write to the stdout
             $this->output->writeStdout($xml);
-        } elseif (false === file_put_contents($this->config->getOutputFileName(), $xml)) {
+        } elseif (false === $this->output->writeToFile($this->config->getOutputFileName(), $xml)) {
             throw new OutputFileException('Can not write to the output file');
         }
     }
@@ -247,7 +231,7 @@ HELP;
                 return false;
             }
 
-            foreach ($attributes as $key => $value) {
+            foreach (array_keys($attributes) as $key) {
                 if ($key === $attributeName) {
                     return true;
                 }

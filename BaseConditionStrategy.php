@@ -52,4 +52,19 @@ abstract class BaseConditionStrategy
     {
         $this->selectedElements = $selectedElements;
     }
+
+    protected function lookDeeper($decisionMaker, $element, $addToSelected = true)
+    {
+        $subElements = $this->xmlParser->findFromElements($decisionMaker, $element, false, true);
+
+        if (count($subElements) > 0) {
+            if ($addToSelected === true) {
+                $this->selectedElements[] = $element;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

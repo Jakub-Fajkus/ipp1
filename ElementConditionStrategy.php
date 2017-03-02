@@ -40,10 +40,13 @@ class ElementConditionStrategy extends BaseConditionStrategy
                 return $this->goDeeper($element);
             }
         }
-
-        return false;
     }
 
+    /**
+     * @param SimpleXMLElement $element
+     *
+     * @return bool
+     */
     protected function goDeeper(SimpleXMLElement $element)
     {
         $thisStrategy = $this;
@@ -55,23 +58,9 @@ class ElementConditionStrategy extends BaseConditionStrategy
         //did we found the element we are searching for?
         if ($element->getName() === $this->query->getSelectElement()->getValue()) {
             //now, look deeper and find the element from the where clause(if present)
-            $subElements = $this->xmlParser->findFromElements($decisionMaker, $element, false, true);
-
-            if (count($subElements) > 0) {
-                $this->selectedElements[] = $element;
-
-                return true;
-            } else {
-                return false;
-            }
+            return $this->lookDeeper($decisionMaker, $element, true);
         } else {
-            $subElements = $this->xmlParser->findFromElements($decisionMaker, $element, false, true);
-
-            if (count($subElements) > 0) {
-                return true;
-            } else {
-                return false;
-            }
+            return $this->lookDeeper($decisionMaker, $element, false);
         }
     }
 }

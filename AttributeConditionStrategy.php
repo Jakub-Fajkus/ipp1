@@ -24,6 +24,7 @@ class AttributeConditionStrategy extends BaseConditionStrategy
 
                     return true;
                 }
+
                 return false;
                 //find subelement of the element which meets condition
             } else {
@@ -36,23 +37,9 @@ class AttributeConditionStrategy extends BaseConditionStrategy
                 //did we found the element we are searching for?
                 if ($name === $this->query->getSelectElement()->getValue()) {
                     //now, look deeper and find the element from the where clause(if present)
-                    $subElements = $this->xmlParser->findFromElements($decisionMaker, $element, false, true);
-
-                    if (count($subElements) > 0) {
-                        $this->selectedElements[] = $element;
-
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    return $this->lookDeeper($decisionMaker, $element, true);
                 } else {
-                    $subElements = $this->xmlParser->findFromElements($decisionMaker, $element, false, true);
-
-                    if (count($subElements) > 0) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    return $this->lookDeeper($decisionMaker, $element, false);
                 }
             }
         }
@@ -66,15 +53,7 @@ class AttributeConditionStrategy extends BaseConditionStrategy
      */
     protected function hasAttribute(SimpleXMLElement $element)
     {
-        $attributeName = str_replace('.', '', $this->query->getConditionLeft()->getValue()); //remove the dot
-
-        foreach ($this->xmlParser->getAttributes($element) as $key => $value) {
-            if ($key === $attributeName) {
-                return true;
-            }
-        }
-
-        return false;
+        return ElementUtils::hasAttribute($element, $this->query->getConditionLeft()->getValue());
     }
 
     /**
@@ -83,10 +62,7 @@ class AttributeConditionStrategy extends BaseConditionStrategy
      */
     protected function getAttributeValue(SimpleXMLElement $element)
     {
-        $attributeName = str_replace('.', '', $this->query->getConditionLeft()->getValue()); //remove the dot
-
-
         //todo: this may return the SimpleXMLElement instance!!!
-        return $element->attributes()[$attributeName];
+        return ElementUtils::getAttributeValue($element, $this->query->getConditionLeft()->getValue());
     }
 }

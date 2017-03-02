@@ -10,6 +10,7 @@ class ElementWithAttributeStrategy extends BaseConditionStrategy
      * @param SimpleXMLElement $element
      *
      * @return bool
+     * @throws \InvalidQueryException
      */
     public function meetsCondition(SimpleXMLElement $element)
     {
@@ -28,7 +29,7 @@ class ElementWithAttributeStrategy extends BaseConditionStrategy
                 $elementNameFromCondition = $this->getElementName($this->query->getConditionLeft()->getValue());
 
                 if ($elementNameFromCondition === $name
-                    && $this->hasAttribute($element)
+                    && ElementUtils::hasAttribute($element, $this->getAttributeName())
                     && $this->query->evaluateQuery($this->getAttributeValue($element))
                 ) {
                     $this->selectedElements[] = $element;
@@ -41,15 +42,7 @@ class ElementWithAttributeStrategy extends BaseConditionStrategy
                         return $thisStrategy->meetsCondition($rootElement);
                     };
                     //now, look deeper and find the element from the where clause(if present)
-                    $subElements = $this->xmlParser->findFromElements($decisionMaker, $element, false, true);
-
-                    if (count($subElements) > 0) {
-                        $this->selectedElements[] = $element;
-
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    $this->lookDeeper($decisionMaker, $element, true);
                 }
                 //find subelement of the element which meets condition
             } else {
@@ -60,39 +53,13 @@ class ElementWithAttributeStrategy extends BaseConditionStrategy
                 };
 
                 if ($name === $this->getElementName($this->query->getConditionLeft()->getValue())
-                    && $this->hasAttribute($element)
+                    && ElementUtils::hasAttribute($element, $this->getAttributeName())
                     && $this->query->evaluateQuery($this->getAttributeValue($element))
                 ) {
-//                    $this->selectedElements[] = $element; //todo: remove! - this adds the element, which is defined i the where clause :D
-
                     return true;
                 }
 
-                $subElements = $this->xmlParser->findFromElements($decisionMaker, $element, false, true);
-
-                if (count($subElements) > 0) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param SimpleXMLElement $element
-     *
-     * @return bool
-     */
-    protected function hasAttribute(SimpleXMLElement $element)
-    {
-        $attributeName = $this->getAttributeName();
-
-        foreach ($this->xmlParser->getAttributes($element) as $key => $value) {
-            if ($key === $attributeName) {
-                return true;
+                return $this->lookDeeper($decisionMaker, $element, false);
             }
         }
 

@@ -6,9 +6,14 @@
 class Config
 {
     /**
-     * @var Output
+     * @var AppOutput
      */
     protected $output;
+
+    /**
+     * @var AppInput
+     */
+    protected $input;
 
     /**
      * @var array Unprocessed command line parameters
@@ -53,12 +58,12 @@ class Config
     /**
      * Config constructor.
      *
-     * @param Output $output
-     * @param array  $parameters
+     * @param array $parameters
      */
-    public function __construct(Output $output, array $parameters)
+    public function __construct(array $parameters)
     {
-        $this->output = $output;
+        $this->output = new AppOutput();
+        $this->input = new AppInput();
         $this->parameters = $parameters;
         $this->processedParameters = [];
         $this->generateXmlHeader = true;
@@ -72,7 +77,7 @@ class Config
         $queryFile = null;
 
         if (in_array('--help', $this->parameters, true) || in_array('-h', $this->parameters, true)) {
-            //Tento parametr nelze kombinovat s žádným dalším parametrem, jinak skript ukončete s chybou.
+            //can not combine --help with any other parameter
             if (count($this->parameters) !== 2) {
                 throw new ParametersException('Can not use --help with any other parameter');
             }
@@ -136,22 +141,20 @@ class Config
 
                 $this->rootElementName = $this->getValueFromParameter($actual);
             } else {
-                throw new ParametersException('Unknown parameter: '.$actual);
+                throw new ParametersException('Unknown parameter: ' . $actual);
             }
         }
 
         //delayed query file processing
-        if (in_array('--qf', $this->processedParameters, true)) {
+        if ($this->wasProcessed('--qf')) {
             $this->getQueryFromFile($this->getValueFromParameter($queryFile));
         }
 
-        if (in_array('--input', $this->processedParameters, true)) {
-            if (!is_file($this->inputFileName)) {
-                throw new InputFileException('Can not open input file: '.$this->inputFileName);
-            }
+        if ($this->wasProcessed('--input') && !$this->input->fileExists($this->inputFileName)) {
+            throw new InputFileException('Can not open input file: ' . $this->inputFileName);
         }
 
-        if (!(in_array('--qf', $this->processedParameters, true) || in_array('--query', $this->processedParameters, true))) {
+        if (!($this->wasProcessed('--qf') || $this->wasProcessed('--query'))) {
             throw new ParametersException('No query specified');
         }
     }
@@ -205,7 +208,7 @@ class Config
     }
 
     /**
-     * @return Output
+     * @return AppOutput
      */
     public function getOutput()
     {
@@ -213,7 +216,7 @@ class Config
     }
 
     /**
-     * @param Output $output
+     * @param AppOutput $output
      */
     public function setOutput($output)
     {
@@ -317,27 +320,16 @@ class Config
      */
     protected function getValueFromParameter($parameter)
     {
-        return  substr($parameter, strpos($parameter, '=') + 1); //+1 character after the =
+        return substr($parameter, strpos($parameter, '=') + 1); //+1 character after the =
     }
 
     /**
      * @param $fileName
+     *
+     * @return null|string
      */
     protected function getQueryFromFile($fileName)
     {
-        if (is_file($fileName)) {
-            $this->query = file_get_contents($fileName);
-        } else {
-            if (is_file(__DIR__.'/'.$fileName)) {
-                $this->query = file_get_contents(__DIR__.'/'.$fileName);
-            } else {
-                //todo: test absolute and relative urls: /file, file, .file, ./file
-                //throw new InputFileException('N')
-            }
-        }
-
-        if ($this->query === false) {
-            throw new InvalidQueryException('Could not read a query from the file: '.$fileName);
-        }
+        $this->query = $this->input->getFileContent($fileName);
     }
 }

@@ -29,6 +29,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     * @throws \InvalidQueryException
      */
     public function analyze()
     {
@@ -104,6 +105,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     * @throws \InvalidQueryException
      */
     protected function fromElm()
     {
@@ -133,6 +135,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     * @throws \InvalidQueryException
      */
     protected function whereClause()
     {
@@ -151,6 +154,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     * @throws \InvalidQueryException
      */
     protected function condition()
     {
@@ -191,6 +195,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     * @throws \InvalidQueryException
      */
     protected function literal()
     {
@@ -209,6 +214,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     * @throws \InvalidQueryException
      */
     protected function relationOperator()
     {
@@ -231,6 +237,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     * @throws \InvalidQueryException
      */
     protected function elementOrAttribute()
     {
@@ -251,6 +258,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     * @throws \InvalidQueryException
      */
     protected function orderClause()
     {
@@ -282,6 +290,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     * @throws \InvalidQueryException
      */
     protected function ordering()
     {

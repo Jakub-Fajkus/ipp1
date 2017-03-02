@@ -3,9 +3,9 @@
 include_once __DIR__.'/classes.php';
 
 // get parameters and consctruct the Config object
-$output = new Output();
-$config = new Config($output, $argv);
-$app = new App($config, $output);
+$config = new Config($argv);
+$app = new App($config);
+$output = new AppOutput();
 
 
 try {
