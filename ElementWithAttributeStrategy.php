@@ -3,6 +3,8 @@
 
 /**
  * Class ElementWithAttributeStrategy.
+ *
+ * Used when the element in the condition is in the format: element.attribute
  */
 class ElementWithAttributeStrategy extends BaseConditionStrategy
 {
@@ -15,8 +17,6 @@ class ElementWithAttributeStrategy extends BaseConditionStrategy
     public function meetsCondition(SimpleXMLElement $element)
     {
         $name = $element->getName();
-        $children = $element->children();
-        $attributes = $element->attributes();
 
         //no condition
         if ($this->query->getConditionLeft() === null) {
@@ -82,8 +82,7 @@ class ElementWithAttributeStrategy extends BaseConditionStrategy
      */
     protected function getAttributeValue(SimpleXMLElement $element)
     {
-        $val = (string)$element->attributes()[$this->getAttributeName()][0];
-        return $val;
+        return (string)$element->attributes()[$this->getAttributeName()][0];
     }
 
     /**

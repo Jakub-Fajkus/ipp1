@@ -2,6 +2,8 @@
 
 /**
  * Class Output.
+ *
+ * Covers the output to the operating system - console and file.
  */
 class AppOutput
 {
@@ -25,30 +27,25 @@ class AppOutput
     }
 
     /**
+     * Write to the stdout
+     *
      * @param $text
      * @param bool $addEol
      */
     public function writeStdout($text, $addEol = true)
     {
-        $this->write($this->stdOut, $text.($addEol ? PHP_EOL : ''));
+        $this->writeToFile($this->stdOut, $text.($addEol ? PHP_EOL : ''));
     }
 
     /**
+     * Write to the stdout
+     *
      * @param $text
      * @param bool $addEol
      */
     public function writeStderr($text, $addEol = true)
     {
-        $this->write($this->stdErr, $text.($addEol ? PHP_EOL : ''));
-    }
-
-    /**
-     * @param resource $stream
-     * @param string   $text
-     */
-    protected function write($stream, $text)
-    {
-        fwrite($stream, $text);
+        $this->writeToFile($this->stdErr, $text.($addEol ? PHP_EOL : ''));
     }
 
     /**

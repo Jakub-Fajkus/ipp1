@@ -2,9 +2,19 @@
 
 /**
  * Class AppInput
+ *
+ * Covers the input from the operating system - console and file.
  */
 class AppInput
 {
+    /**
+     * Get content of the file.
+     *
+     * @param $fileName
+     * @return string
+     *
+     * @throws InvalidQueryException
+     */
     public function getFileContent($fileName)
     {
         $data = null;
@@ -28,7 +38,9 @@ class AppInput
     }
 
     /**
-     * @param $fileName
+     * Check whether the file exists or not.
+     *
+     * @param string $fileName
      *
      * @return bool
      */
@@ -47,6 +59,9 @@ class AppInput
         return false;
     }
 
+    /**
+     * @return string
+     */
     public function readFromStdin()
     {
         return file_get_contents('php://stdin');

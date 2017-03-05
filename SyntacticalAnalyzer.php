@@ -1,6 +1,10 @@
 <?php
 
-
+/**
+ * Class SyntacticalAnalyzer.
+ *
+ * Implementation of a recursive descent parser.
+ */
 class SyntacticalAnalyzer
 {
     /**
@@ -28,7 +32,10 @@ class SyntacticalAnalyzer
     }
 
     /**
+     * An entrypoint method for the analysis.
+     *
      * @return bool
+     *
      * @throws \InvalidQueryException
      */
     public function analyze()
@@ -37,6 +44,8 @@ class SyntacticalAnalyzer
     }
 
     /**
+     * Get the query object which was created and which represents the parsed query.
+     *
      * @return Query
      */
     public function getQuery()
@@ -67,7 +76,7 @@ class SyntacticalAnalyzer
                 if ($token->getType() === Token::TOKEN_FROM) {
                     if ($this->fromElm()) {
                         if ($this->whereClause() || $this->orderClause() || $this->limitN()) {
-                                return true;
+                            return true;
                         }
                     }
                 }
@@ -105,6 +114,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     *
      * @throws \InvalidQueryException
      */
     protected function fromElm()
@@ -135,6 +145,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     *
      * @throws \InvalidQueryException
      */
     protected function whereClause()
@@ -148,12 +159,14 @@ class SyntacticalAnalyzer
             return $this->condition();
         } else {
             $this->returnToken();
+
             return false;
         }
     }
 
     /**
      * @return bool
+     *
      * @throws \InvalidQueryException
      */
     protected function condition()
@@ -195,6 +208,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     *
      * @throws \InvalidQueryException
      */
     protected function literal()
@@ -203,7 +217,7 @@ class SyntacticalAnalyzer
 
         if ($token->getType() === Token::TOKEN_STRING) {
             return true;
-        } elseif ($token->getType() == Token::TOKEN_INTEGER) {
+        } elseif ($token->getType() === Token::TOKEN_INTEGER) {
             return true;
         } else {
             $this->returnToken();
@@ -214,6 +228,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     *
      * @throws \InvalidQueryException
      */
     protected function relationOperator()
@@ -237,6 +252,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     *
      * @throws \InvalidQueryException
      */
     protected function elementOrAttribute()
@@ -258,6 +274,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     *
      * @throws \InvalidQueryException
      */
     protected function orderClause()
@@ -290,6 +307,7 @@ class SyntacticalAnalyzer
 
     /**
      * @return bool
+     *
      * @throws \InvalidQueryException
      */
     protected function ordering()
@@ -299,10 +317,12 @@ class SyntacticalAnalyzer
         //<ORDERING> --> ASC
         if ($token->getType() === Token::TOKEN_ASC) {
             $this->query->setOrdering($token);
+
             return true;
         //<ORDERING> --> DESC
         } elseif ($token->getType() === Token::TOKEN_DESC) {
             $this->query->setOrdering($token);
+
             return true;
         } else {
             $this->returnToken();
@@ -312,11 +332,15 @@ class SyntacticalAnalyzer
     }
 
     /**
-     * @param bool $expectingEnd
+     * Get next token from the query.
      *
-     * @return Token|false
+     * @param bool $expectingEnd Whether the caller is excpecting the end of the input
+     *                           or it wants to handle the situation itself
      *
-     * @throws InvalidQueryException
+     * @return Token|false False when the $expectingEnd is set to true and there is no next token to return.
+     *
+     * @throws InvalidQueryException When there is no next token in the query
+     *                               and the $expectingEnd parameter is set to false
      */
     protected function getNextToken($expectingEnd = false)
     {
@@ -330,6 +354,8 @@ class SyntacticalAnalyzer
     }
 
     /**
+     * Get the current token(does not modify the pointer)
+     *
      * @return Token|false
      */
     protected function getCurrentToken()
@@ -338,6 +364,8 @@ class SyntacticalAnalyzer
     }
 
     /**
+     * Return the actual token. This moves the pointer back.
+     *
      * @return mixed
      */
     protected function returnToken()

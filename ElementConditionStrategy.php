@@ -3,14 +3,23 @@
 
 /**
  * Class ElementConditionStrategy
+ *
+ * Used when the element in the condition is in the format: element
  */
 class ElementConditionStrategy extends BaseConditionStrategy
 {
+    /**
+     * Check if the element meets the condition from the query.
+     *
+     * @param SimpleXMLElement $element
+     *
+     * @return bool
+     *
+     * @throws InvalidInputFileFormatException
+     */
     public function meetsCondition(SimpleXMLElement $element)
     {
         $name = $element->getName();
-        $children = $element->children();
-        $attributes = $element->attributes();
 
         //no condition
         if ($this->query->getConditionLeft() === null) {
@@ -26,14 +35,14 @@ class ElementConditionStrategy extends BaseConditionStrategy
             if ($name === $this->query->getConditionLeft()->getValue()) {
                 // the element in condition can not have any subelement!
                 if (count($element->children()) > 0) {
-                    throw new InvalidInputFileFormatException("The element $name contains other elements! Thus it cannot be used in the condition.");
+                    throw new InvalidInputFileFormatException(
+                        "The element $name contains other elements! Thus it cannot be used in the condition."
+                    );
                 } else {
                     $value = (string)$element;
                 }
 
-                $returnValue = $this->query->evaluateQuery($value); //perform query evaluation
-
-                return $returnValue;
+                return $this->query->evaluateQuery($value); //perform query evaluation
 
             //find subelement of the element which meets condition
             } else {

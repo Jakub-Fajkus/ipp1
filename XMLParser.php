@@ -1,12 +1,16 @@
 <?php
 
-
+/**
+ * Class XMLParser.
+ *
+ * Class implementing a depth search of the xml tree.
+ */
 class XMLParser
 {
     /**
      * @var SimpleXMLElement
      */
-    protected $iterator;
+    protected $root;
 
     /**
      * @var Query
@@ -26,10 +30,10 @@ class XMLParser
     {
         if (!empty($xmlString)) {
             try {
-                $this->iterator = @new SimpleXMLElement($xmlString, 0);
+                $this->root = @new SimpleXMLElement($xmlString, 0);
             } catch (\Exception $exception) {
                 throw new InvalidInputFileFormatException(
-                    'Could not parse input file: ' . $xmlString . '. More info: ' . $exception->getMessage()
+                    'Could not parse input file: '.$xmlString.'. More info: '.$exception->getMessage()
                 );
             }
         }
@@ -38,42 +42,36 @@ class XMLParser
     }
 
     /**
-     * kazde volani children vrati iterator pro zanorene elementy.
+     * Find all elements for that the $decisionMaker returns true
      *
-     * postup hledani:
-     * 1. iterace hned po rewind -> hledame v rootu
-     * 2. iterace root->getChildren -> hledani v zanoreni
-     *
-     * @param Closure $decisionMaker Closure which is used to determine whether the element
-     * is the one which we are looking for or not
-     * @param SimpleXMLElement|null $iterator
+     * @param Closure               $decisionMaker Closure which is used to determine whether the element
+     *                                             is the one which we are looking for or not
+     * @param SimpleXMLElement|null $root
      *
      * @return SimpleXMLElement[]
+     *
      * @throws \Exception
      */
-    public function findFromElements(Closure $decisionMaker, SimpleXMLElement $iterator = null, $checkRoot = true, $goDeeper = true)
+    public function findFromElements(Closure $decisionMaker, SimpleXMLElement $root = null, $checkRoot = true, $goDeeper = true)
     {
-        if ($this->iterator === null && $iterator === null) {
+        if ($this->root === null && $root === null) {
             throw new \Exception('No xml data to filter');
         }
 
-        if ($iterator === null) {
-            $iterator = $this->iterator; //root iterator
+        if ($root === null) {
+            $root = $this->root; //root root
         }
 
-        $nameRoot = $iterator->getName(); //debug
-
         //check if we are looking for the root element
-        $attributes = ElementUtils::getAttributes($iterator);
-        if ($checkRoot && $decisionMaker($iterator, $attributes)) {
-            return [$iterator];
+        $attributes = ElementUtils::getAttributes($root);
+        if ($checkRoot && $decisionMaker($root, $attributes)) {
+            return [$root];
         }
 
         $returnElements = [];
 
         /** @var SimpleXMLElement $child */
-        foreach ($iterator->children() as $child) {
-            $childName = $child->getName(); //debug
+        foreach ($root->children() as $child) {
             if ($child === null) {
                 break;
             }
@@ -91,9 +89,13 @@ class XMLParser
     }
 
     /**
+     * Find all elements from the $fromElement which meets the requirements defined by the condition from query.
+     *
      * @param SimpleXMLElement $fromElement
+     *
      * @return array
      *
+     * @throws \InvalidInputFileFormatException
      * @throws \InputFileException
      * @throws \Exception
      * @throws InvalidQueryException
@@ -108,22 +110,20 @@ class XMLParser
         $selectElementName = $selectElement->getValue();
         $strategy = $this->query->getStrategy();
 
-
         $decisionMaker = function (SimpleXMLElement $rootElement, $attributes) use ($selectElementName, $strategy) {
             return $strategy->meetsCondition($rootElement);
         };
 
         $this->findFromElements($decisionMaker, $fromElement, true, false);
-        $foundElements = $strategy->getSelectedElements(); //debug variable
 
-        return $foundElements;
+        return $strategy->getSelectedElements();
     }
 
     /**
      * @return SimpleXMLElement
      */
-    public function getIterator()
+    public function getRoot()
     {
-        return $this->iterator;
+        return $this->root;
     }
 }

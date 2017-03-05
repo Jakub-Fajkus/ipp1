@@ -1,6 +1,8 @@
 <?php
 
-
+/**
+ * Class InvalidInputFileFormatException
+ */
 class InvalidInputFileFormatException extends \Exception
 {
     const CODE = 4;

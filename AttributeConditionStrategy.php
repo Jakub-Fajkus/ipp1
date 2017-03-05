@@ -2,14 +2,14 @@
 
 /**
  * Class AttributeConditionStrategy
+ *
+ * Used when the element in the condition is in the format: .attribute
  */
 class AttributeConditionStrategy extends BaseConditionStrategy
 {
     public function meetsCondition(SimpleXMLElement $element)
     {
         $name = $element->getName();
-        $children = $element->children();
-        $attributes = $element->attributes();
 
         //no condition
         if ($this->query->getConditionLeft() === null) {

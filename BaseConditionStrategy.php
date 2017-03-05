@@ -3,7 +3,9 @@
 /**
  * Class BaseConditionStrategy
  * 
- * The class is used to determine if the given element meets the condition form the query
+ * The class is used to determine if the given element meets the condition form the query.
+ *
+ * All subclases should be used as a parameter for the XMLParser class.
  */
 abstract class BaseConditionStrategy
 {
@@ -34,11 +36,17 @@ abstract class BaseConditionStrategy
         $this->xmlParser = $xmlParser;
     }
 
-
+    /**
+     * Check if the element meets the condition from the query.
+     *
+     * @param SimpleXMLElement $element
+     *
+     * @return bool
+     */
     abstract public function meetsCondition(SimpleXMLElement $element);
 
     /**
-     * @return array
+     * @return SimpleXMLElement[]
      */
     public function getSelectedElements()
     {
@@ -53,6 +61,15 @@ abstract class BaseConditionStrategy
         $this->selectedElements = $selectedElements;
     }
 
+    /**
+     * Lok deeper into the tree.
+     *
+     * @param $decisionMaker
+     * @param $element
+     * @param bool $addToSelected
+     *
+     * @return bool
+     */
     protected function lookDeeper($decisionMaker, $element, $addToSelected = true)
     {
         $subElements = $this->xmlParser->findFromElements($decisionMaker, $element, false, true);

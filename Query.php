@@ -1,6 +1,10 @@
 <?php
 
-
+/**
+ * Class Query.
+ *
+ * Inner interpretation of the query strin with capabilities of evaluation of the condition.
+ */
 class Query
 {
     /**
@@ -245,15 +249,19 @@ class Query
     public function setLimit(Token $limit)
     {
         if (!(is_int($limit->getValue()) && $limit->getValue() >= 0)) {
-            throw new InvalidQueryException('The limit iteral must be positive integer or zero');
+            throw new InvalidQueryException('The limit literal must be positive integer or zero');
         }
 
         $this->limit = $limit;
     }
 
     /**
-     * @param $sourceValue
+     * Evaluate the condition for the given $sourceValue.
+     *
+     * @param $sourceValue string The value from the xml input.
+     *
      * @return bool
+     *
      * @throws InvalidQueryException
      */
     public function evaluateQuery($sourceValue)
@@ -292,9 +300,11 @@ class Query
     }
 
     /**
-     * @return BaseConditionStrategy
-     * @throws \InvalidInputFileFormatException
+     * Get stratgy which will be used to finding the elements from the SELECT clause which meets the condition.
      *
+     * @return BaseConditionStrategy
+     *
+     * @throws \InvalidInputFileFormatException
      * @throws \InputFileException
      * @throws InvalidQueryException
      */
@@ -318,6 +328,70 @@ class Query
     }
 
     /**
+     * Get a function which will be used to find the element from the FROM clause.
+     * This is used when the name in the FORM clause is in format: "element.attrubite".
+     *
+     * @param $attributeName
+     * @param $elementName
+     *
+     * @return Closure
+     */
+    public function getClosureForElementWithAttribute($attributeName, $elementName)
+    {
+        return function (SimpleXMLElement $rootElement, $attributes) use ($attributeName, $elementName) {
+            if ($rootElement->getName() !== $elementName) {
+                return false;
+            }
+
+            foreach (array_keys($attributes) as $key) {
+                if ($key === $attributeName) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+    }
+
+    /**
+     * * Get a function which will be used to find the element from the FROM clause.
+     * This is used when the name in the FORM clause is in format: ".attribute".
+     *
+     * @param $attributeName
+     *
+     * @return Closure
+     */
+    public function getClosureForAttribute($attributeName)
+    {
+        return function (SimpleXMLElement $rootElement, $attributes) use ($attributeName) {
+            foreach ($attributes as $key => $value) {
+                if ($key === $attributeName) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+    }
+
+    /**
+     * Get a function which will be used to find the element from the FROM clause.
+     * This is used when the name in the FORM clause is in format: "element".
+     *
+     * @param $queryElementName
+     *
+     * @return Closure
+     */
+    public function getClosureForElement($queryElementName)
+    {
+        return function (SimpleXMLElement $rootElement, $attributes) use ($queryElementName) {
+            return $rootElement->getName() === $queryElementName;
+        };
+    }
+
+    /**
+     * Check whether the given input matches the double format.
+     *
      * @param string|int|float $sourceValue
      *
      * @return bool
@@ -331,9 +405,11 @@ class Query
     }
 
     /**
+     * Return the numeric value of the input(double or int)
+     *
      * @param $sourceValue
      *
-     * @return float|int
+     * @return double|int
      *
      * @throws InvalidQueryException
      */
@@ -341,9 +417,9 @@ class Query
     {
         if (is_numeric($sourceValue)) {
             if ($this->isDouble($sourceValue)) {
-                return (double)$sourceValue;
+                return (double) $sourceValue;
             } elseif (is_int($sourceValue)) {
-                return (int)$sourceValue;
+                return (int) $sourceValue;
             } else {
                 throw new InvalidQueryException("Could not use string: $sourceValue as a number");
             }

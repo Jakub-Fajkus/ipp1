@@ -1,6 +1,10 @@
 <?php
 
-
+/**
+ * Class ElementUtils.
+ *
+ * Helper class for common operations with SimpleXMLElements.
+ */
 class ElementUtils
 {
     /**
@@ -23,6 +27,7 @@ class ElementUtils
 
     /**
      * @param SimpleXMLElement $element
+     *
      * @return bool
      */
     public static function hasAttribute(SimpleXMLElement $element, $attributeName)
@@ -40,20 +45,22 @@ class ElementUtils
 
     /**
      * @param SimpleXMLElement $element
-     * @return mixed
+     *
+     * @return string
      */
     public static function getAttributeValue(SimpleXMLElement $element, $attributeName)
     {
         $attributeName = str_replace('.', '', $attributeName); //remove the dot
 
         //todo: this may return the SimpleXMLElement instance!!! type to string?
-        return $element->attributes()[$attributeName];
+        return (string) $element->attributes()[$attributeName];
     }
 
     /**
      * @param SimpleXMLElement[] $elements
-     * @param bool $generateXmlHeader
-     * @param string $rootElementName
+     * @param bool               $generateXmlHeader
+     * @param string             $rootElementName
+     *
      * @return string
      */
     public static function getXmlString($elements, $generateXmlHeader, $rootElementName)

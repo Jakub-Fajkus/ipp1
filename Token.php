@@ -1,6 +1,10 @@
 <?php
 
-
+/**
+ * Class Token
+ *
+ * Represents the query token.
+ */
 class Token
 {
     const TOKEN_SELECT = 'SELECT';
@@ -17,13 +21,18 @@ class Token
     const TOKEN_OPERATOR_MORE = 'OPERATOR_MORE';
     const TOKEN_OPERATOR_LESS = 'OPERATOR_LESS';
     const TOKEN_OPERATOR_EQUALS = 'OPERATOR_EQUALS';
-    const TOKEN_BRACE_LEFT = 'BRACE_LEFT';
-    const TOKEN_BRACE_RIGHT = 'BRACE_RIGHT';
     const TOKEN_ATTRIBUTE = 'ATTRIBUTE';
     const TOKEN_ELEMENT_WITH_ATTRIBUTE = 'ELEMENT_WITH_ATTRIBUTE';
     const TOKEN_ELEMENT = 'ELEMENT';
     const TOKEN_INTEGER = 'INTEGER';
     const TOKEN_STRING = 'STRING';
+
+    const ALL_TOKENS = [
+        self::TOKEN_SELECT, self::TOKEN_WHERE, self::TOKEN_FROM, self::TOKEN_NOT, self::TOKEN_LIMIT, self::TOKEN_ROOT,
+        self::TOKEN_CONTAINS, self::TOKEN_ORDER_BY, self::TOKEN_DESC, self::TOKEN_ASC, self::TOKEN_SPACE,
+        self::TOKEN_OPERATOR_MORE, self::TOKEN_OPERATOR_LESS, self::TOKEN_OPERATOR_EQUALS,self::TOKEN_ATTRIBUTE,
+        self::TOKEN_ELEMENT_WITH_ATTRIBUTE, self::TOKEN_ELEMENT, self::TOKEN_INTEGER, self::TOKEN_STRING
+    ];
 
     /**
      * @var string
@@ -57,9 +66,17 @@ class Token
 
     /**
      * @param string $type
+     *
+     * @throws \Exception
      */
     public function setType($type)
     {
+        if (!in_array($type, self::ALL_TOKENS, true)) {
+            throw new \Exception(
+                'Invalid token type ' . $type . 'The type must be one of: ' . implode(',', self::ALL_TOKENS)
+            );
+        }
+
         $this->type = $type;
     }
 

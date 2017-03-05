@@ -2,6 +2,8 @@
 
 /**
  * Class App.
+ *
+ * Covers the basic application logic.
  */
 class App
 {
@@ -53,6 +55,8 @@ class App
     }
 
     /**
+     * Entrypoint for the whole application.
+     *
      * @throws \InvalidQueryException
      * @throws \InputFileException
      * @throws \Exception
@@ -68,16 +72,8 @@ class App
         }
 
         $this->readInputData();
+        $this->createQuery();
 
-        $lexicalAnalyzer = new LexicalAnalyzer($this->config->getQuery());
-        $syntacticalAnalyzer = new SyntacticalAnalyzer($lexicalAnalyzer->getTokens());
-
-        if ($syntacticalAnalyzer->analyze() === false) {
-            throw new InvalidQueryException('Syntax error in query');
-        }
-
-        $this->query = $syntacticalAnalyzer->getQuery();
-        $this->query->validate();
         $this->xmlParser = new XMLParser($this->inputData, $this->query);
 
         if ($this->query->getFromElement() === null) {
@@ -94,13 +90,13 @@ class App
             return;
         }
 
-        $selectElements = $this->selectElements($fromElements[0]);
+        $selectElements = $this->getSelectedElements($fromElements[0]);
 
         $this->generateOutput($selectElements);
     }
 
     /**
-     *
+     * Print help of the application to the console.
      */
     protected function printHelp()
     {
@@ -142,8 +138,7 @@ HELP;
     }
 
     /**
-     * @param Query $query
-     * @param XMLParser $$this->xmlParser
+     * Get all elements that matches the element from the FROM clause
      *
      * @return SimpleXMLElement[]
      *
@@ -155,20 +150,20 @@ HELP;
         $findRoot = true;
 
         if ($queryElement->getType() === Token::TOKEN_ROOT) {
-            $fromElements = [$this->xmlParser->getIterator()]; //get the root)
+            $fromElements = [$this->xmlParser->getRoot()]; //get the root
         } elseif ($queryElement->getType() === Token::TOKEN_ELEMENT) {
             $queryElementName = $queryElement->getValue();
-            $decisionMaker = $this->getClosureForElement($queryElementName);
+            $decisionMaker = $this->query->getClosureForElement($queryElementName);
 
             $fromElements = $this->xmlParser->findFromElements($decisionMaker, null, $findRoot);
         } elseif ($queryElement->getType() === Token::TOKEN_ATTRIBUTE) {
             $attributeName = str_replace('.', '', $queryElement->getValue()); //remove the dot at the 0 index
-            $decisionMaker = $this->getClosureForAttribute($attributeName);
+            $decisionMaker = $this->query->getClosureForAttribute($attributeName);
 
             $fromElements = $this->xmlParser->findFromElements($decisionMaker, null, $findRoot);
         } elseif ($queryElement->getType() === Token::TOKEN_ELEMENT_WITH_ATTRIBUTE) {
             list($elementName, $attributeName) = explode('.', $queryElement->getValue());
-            $decisionMaker = $this->getClosureForElementWithAttribute($attributeName, $elementName);
+            $decisionMaker = $this->query->getClosureForElementWithAttribute($attributeName, $elementName);
             $fromElements = $this->xmlParser->findFromElements($decisionMaker, null, $findRoot);
         } else {
             throw new \Exception('Invalid query type');
@@ -178,25 +173,54 @@ HELP;
     }
 
     /**
-     * @param SimpleXMLElement $fromElement
-     *
-     * @return SimpleXMLElement[]
-     * @throws \InputFileException
+     * Get the query from the user's input.
+     * Perform lexical and syntactical analysis and create the inner interpretation of the query.
      *
      * @throws InvalidQueryException
      */
-    protected function selectElements(SimpleXMLElement $fromElement)
+    protected function createQuery()
+    {
+        $lexicalAnalyzer = new LexicalAnalyzer($this->config->getQuery());
+        $syntacticalAnalyzer = new SyntacticalAnalyzer($lexicalAnalyzer->getTokens());
+
+        if ($syntacticalAnalyzer->analyze() === false) {
+            throw new InvalidQueryException('Syntax error in query');
+        }
+
+        $this->query = $syntacticalAnalyzer->getQuery();
+        $this->query->validate();
+    }
+
+    /**
+     * Get all elements from the $fromElement which meets the requirements defined by the condition from query.
+     *
+     * @param SimpleXMLElement $fromElement
+     *
+     * @return SimpleXMLElement[]
+     *
+     * @throws \Exception
+     * @throws \InputFileException
+     * @throws InvalidQueryException
+     */
+    protected function getSelectedElements(SimpleXMLElement $fromElement)
     {
         return $this->xmlParser->findSelectElements($fromElement);
     }
 
+    /**
+     * @throws \OutputFileException
+     */
     protected function generateEmptyOutput()
     {
         $this->generateOutput([]);
     }
 
     /**
+     * Limit the number of the elements by the number in the LIMIT clause.
+     * Transform the elements into string and write the string to file or to the console output.
+     *
      * @param SimpleXMLElement[] $elements
+     *
      * @throws \OutputFileException
      */
     protected function generateOutput($elements)
@@ -217,56 +241,5 @@ HELP;
         } elseif (false === $this->output->writeToFile($this->config->getOutputFileName(), $xml)) {
             throw new OutputFileException('Can not write to the output file');
         }
-    }
-
-    /**
-     * @param $attributeName
-     * @param $elementName
-     * @return Closure
-     */
-    protected function getClosureForElementWithAttribute($attributeName, $elementName)
-    {
-        return function (SimpleXMLElement $rootElement, $attributes) use ($attributeName, $elementName) {
-            if ($rootElement->getName() !== $elementName) {
-                return false;
-            }
-
-            foreach (array_keys($attributes) as $key) {
-                if ($key === $attributeName) {
-                    return true;
-                }
-            }
-
-            return false;
-        };
-    }
-
-    /**
-     * @param $attributeName
-     * @return Closure
-     */
-    protected function getClosureForAttribute($attributeName)
-    {
-        return function (SimpleXMLElement $rootElement, $attributes) use ($attributeName) {
-            foreach ($attributes as $key => $value) {
-                if ($key === $attributeName) {
-                    return true;
-                }
-            }
-
-            return false;
-        };
-    }
-
-    /**
-     * @param $queryElementName
-     *
-     * @return Closure
-     */
-    protected function getClosureForElement($queryElementName)
-    {
-        return function (SimpleXMLElement $rootElement, $attributes) use ($queryElementName) {
-            return $rootElement->getName() === $queryElementName;
-        };
     }
 }

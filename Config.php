@@ -2,6 +2,8 @@
 
 /**
  * Class Config.
+ *
+ * Class holding the configuration from the command line input.
  */
 class Config
 {

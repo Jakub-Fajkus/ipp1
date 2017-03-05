@@ -2,6 +2,8 @@
 
 /**
  * Class LexicalAnalyzer
+ *
+ * Parses the query string into an array of tokens.
  */
 class LexicalAnalyzer
 {
@@ -28,8 +30,6 @@ class LexicalAnalyzer
         '/^(>)/'                                                  => Token::TOKEN_OPERATOR_MORE,
         '/^(<)/'                                                  => Token::TOKEN_OPERATOR_LESS,
         '/^(=)/'                                                  => Token::TOKEN_OPERATOR_EQUALS,
-//        '/^(\()/'                                                 => Token::TOKEN_BRACE_LEFT,
-//        '/^(\))/'                                                 => Token::TOKEN_BRACE_RIGHT,
         /*
          * Naming conventions - NOT IMPLEMENTED!
          *
