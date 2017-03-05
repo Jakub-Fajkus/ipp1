@@ -22,8 +22,8 @@ class AppOutput
      */
     public function __construct()
     {
-        $this->stdOut = fopen('php://stdout', 'w');
-        $this->stdErr = fopen('php://stderr', 'w');
+        $this->stdOut = 'php://stdout';
+        $this->stdErr = 'php://stderr';
     }
 
     /**
