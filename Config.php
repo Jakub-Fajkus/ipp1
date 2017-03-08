@@ -157,7 +157,7 @@ class Config
         }
 
         if (!($this->wasProcessed('--qf') || $this->wasProcessed('--query'))) {
-            throw new ParametersException('No query specified');
+            throw new InvalidQueryException('No query specified');
         }
     }
 
