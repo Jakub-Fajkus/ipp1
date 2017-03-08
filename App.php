@@ -132,6 +132,10 @@ HELP;
         //if we have the output file
         if ($this->config->getInputFileName() !== '') {
             $this->inputData = $this->input->getFileContent($this->config->getInputFileName());
+
+            if (!$this->inputData) {
+                throw new InputFileException('Could not read the input from the file: '.$this->config->getInputFileName());
+            }
         } else {
             $this->inputData = $this->input->readFromStdin();
         }

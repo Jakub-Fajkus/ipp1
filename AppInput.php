@@ -30,9 +30,9 @@ class AppInput
             }
         }
 
-        if (!$data) {
-            throw new InvalidQueryException('Could not read a query from the file: '.$fileName);
-        }
+//        if (!$data) {
+//            throw new InvalidQueryException('Could not read a query from the file: '.$fileName);
+//        }
 
         return $data;
     }

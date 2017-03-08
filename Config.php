@@ -333,5 +333,9 @@ class Config
     protected function getQueryFromFile($fileName)
     {
         $this->query = $this->input->getFileContent($fileName);
+
+        if (!$this->query) {
+            throw new InvalidQueryException('Could not read a query from the file: '.$fileName);
+        }
     }
 }
